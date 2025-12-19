@@ -25,12 +25,12 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Node
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20
 
-      # Use npm install because your repo currently has no lockfile.
+      # Gemini-Exports enthalten oft keinen Lockfile -> npm ci würde fehlschlagen.
       - name: Install dependencies
         run: npm install
 
