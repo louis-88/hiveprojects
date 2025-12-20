@@ -32,10 +32,27 @@ jobs:
       - name: Install dependencies
         run: npm install
 
+      # IMPORTANT:
+      # - Keep AI Studio index.html as-is in the repo
+      # - For GitHub Pages build, temporarily replace index.html with pages.html
+      - name: Use pages.html for production build
+        run: |
+          test -f pages.html
+          test -f index.html
+          cp index.html index.ai-studio.html
+          cp pages.html index.html
+
       - name: Build
         run: npm run build
 
-      # Debug: Zeigt Ihnen im Log sofort, ob dist/index.html existiert
+      # Restore original index.html (not strictly required, but keeps the workspace clean)
+      - name: Restore AI Studio index.html
+        run: |
+          if [ -f index.ai-studio.html ]; then
+            cp index.ai-studio.html index.html
+          fi
+
+      # Debug: prove dist/index.html exists
       - name: Debug dist output
         run: |
           echo "=== dist tree ==="
