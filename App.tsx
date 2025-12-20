@@ -309,7 +309,7 @@ const App: React.FC = () => {
                 <span className="text-xs font-bold uppercase tracking-widest text-red-100">Featured Ecosystem</span>
               </div>
               <h2 className="text-2xl font-black mb-2">Welcome to Hive Projects</h2>
-              <p className="text-red-50 text-sm leading-relaxed opacity-90">
+              <p className="text-red-50 text-sm leading-relaxed opacity-90 max-w-lg">
                 Explore the most advanced decentralized ecosystem. From social media to gaming, find everything built on the Hive blockchain.
               </p>
             </div>
@@ -754,7 +754,7 @@ const App: React.FC = () => {
               <Calendar className="w-6 h-6 text-hive" />
               <h4 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight">Project Timeline</h4>
             </div>
-            {/* Vertical Line Container with Reverse order */}
+            {/* Vertical Line Container with Reverse order - NEWEST AT TOP */}
             <div className="relative space-y-12 pl-8 border-l-2 border-slate-100 dark:border-slate-800">
               {[...selectedProject.timeline].reverse().map((event, idx) => (
                 <div key={idx} className="relative">
@@ -763,7 +763,7 @@ const App: React.FC = () => {
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3">
                       <span className="text-[10px] font-black text-hive uppercase tracking-widest bg-hive/5 px-2 py-1 rounded inline-block w-fit">{event.date}</span>
                       {event.linkUrl && (
-                        <a href={event.linkUrl} target="_blank" className="text-xs font-bold text-slate-400 hover:text-hive flex items-center gap-1 transition-colors">
+                        <a href={event.linkUrl} target="_blank" rel="noopener noreferrer" className="text-xs font-bold text-slate-400 hover:text-hive flex items-center gap-1 transition-colors">
                           <LinkIcon className="w-3 h-3" /> View Update
                         </a>
                       )}
@@ -789,6 +789,7 @@ const App: React.FC = () => {
           <p className="text-slate-500 dark:text-slate-400">Meet the architects of the Hive ecosystem</p>
         </div>
       </div>
+      {/* 5 columns as requested (lg:grid-cols-5) */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
         {uniqueDevelopers.map((dev) => (
           <div 
