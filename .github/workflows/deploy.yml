@@ -21,6 +21,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+
       - name: Set up Node
         uses: actions/setup-node@v4
         with:
@@ -31,6 +34,16 @@ jobs:
 
       - name: Build
         run: npm run build
+
+      # Debug: Zeigt Ihnen im Log sofort, ob dist/index.html existiert
+      - name: Debug dist output
+        run: |
+          echo "=== dist tree ==="
+          ls -la dist || true
+          echo "=== dist/index.html ==="
+          ls -la dist/index.html || true
+          echo "=== find index.html in dist ==="
+          find dist -maxdepth 3 -name "index.html" -print || true
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
