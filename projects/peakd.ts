@@ -24,8 +24,8 @@ export const peakd: Project = {
   ],
   supporters: [
     { name: 'louis88', role: 'Documentation & Support', avatar: 'https://images.hive.blog/u/louis88/avatar' },
-    { name: 'stoodkev', role: 'Keychain Integration Support', avatar: 'https://images.hive.blog/u/stoodkev/avatar' },
-    { name: 'stoodkev', role: 'Keychain Integration Support', avatar: 'https://images.hive.blog/u/stoodkev/avatar' },
+    { name: 'rivalzzz', role: 'Keychain Integration Support', avatar: 'https://images.hive.blog/u/rivalzzz/avatar' },
+    { name: 'asgarth-dev', role: 'Keychain Integration Support', avatar: 'https://images.hive.blog/u/asgarth-dev/avatar' },
     { name: 'stoodkev', role: 'Keychain Integration Support', avatar: 'https://images.hive.blog/u/stoodkev/avatar' },
     { name: 'stoodkev', role: 'Keychain Integration Support', avatar: 'https://images.hive.blog/u/stoodkev/avatar' }
   ],

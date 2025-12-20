@@ -754,7 +754,7 @@ const App: React.FC = () => {
               <Calendar className="w-6 h-6 text-hive" />
               <h4 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight">Project Timeline</h4>
             </div>
-            {/* Vertical Line Container with Reverse order - NEWEST AT TOP */}
+            {/* Vertical Line Container with Newest at Top order */}
             <div className="relative space-y-12 pl-8 border-l-2 border-slate-100 dark:border-slate-800">
               {[...selectedProject.timeline].reverse().map((event, idx) => (
                 <div key={idx} className="relative">
@@ -789,7 +789,7 @@ const App: React.FC = () => {
           <p className="text-slate-500 dark:text-slate-400">Meet the architects of the Hive ecosystem</p>
         </div>
       </div>
-      {/* 5 columns as requested (lg:grid-cols-5) */}
+      {/* Updated to 5 in a row as requested */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
         {uniqueDevelopers.map((dev) => (
           <div 
