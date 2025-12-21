@@ -6,9 +6,9 @@ export const ecency: Project = {
   name: 'Ecency',
   description: 'Ecency is a decentralized, rewarding social media platform and mobile application. It is one of the most popular open-source interfaces for Hive, featuring high-speed browsing, community discovery, and a unique reward system called Ecency Points that incentives engagement and content quality across the ecosystem.',
   category: 'Hive Interfaces (Frontends)',
-  thumbnail: 'https://ecency.com/img/logo.png',
+  thumbnail: 'https://files.peakd.com/file/peakd-hive/louis88/23wXNL1YWzCCAvAQYdBJA6LBF7j8wmGMDX7Zd9Qjqz3wLteXqjrMffx68xPmntbQT7CyA.png',
   gallery: [
-    'https://images.hive.blog/DQmXv4Kx3v4Kx3v4Kx3v4Kx3v4Kx3v4Kx3v4Kx3v4Kx3.png'
+    'https://files.peakd.com/file/peakd-hive/louis88/23tSzLNvvNCAVFwQB8TvbViQF6XTxHhk1i5xAxGJatbALPzYt9Bnwxat25WiHaCMYB865.png'
   ],
   websiteUrl: 'https://ecency.com',
   githubUrl: 'https://github.com/ecency',
@@ -18,9 +18,7 @@ export const ecency: Project = {
   isOpenSource: true,
   lastEdited: 'Oct 23, 2023',
   team: [
-    { name: 'good-karma', role: 'Founder & Lead Dev', avatar: 'https://images.hive.blog/u/good-karma/avatar' },
-    { name: 'melv95', role: 'UI/UX Designer', avatar: 'https://images.hive.blog/u/melv95/avatar' },
-    { name: 'dunsky', role: 'Full Stack Developer', avatar: 'https://images.hive.blog/u/dunsky/avatar' }
+    { name: 'good-karma', role: 'Founder & Lead Dev', avatar: 'https://images.hive.blog/u/good-karma/avatar' }
   ],
   timeline: [
     { 

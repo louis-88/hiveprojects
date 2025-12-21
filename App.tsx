@@ -1,11 +1,11 @@
 
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import Header from './components/Header';
 import CategorySidebar from './components/CategorySidebar';
 import ProjectCard from './components/ProjectCard';
 import { projects, categories } from './data';
 import { ViewType, Project, TeamMember, TimelineEvent } from './types';
-import { Bell, ChevronRight, HelpCircle, Send, Search, Sparkles, LayoutGrid, Heart, Trash2, ArrowLeft, ExternalLink, Info, MessageCircle, Code, Users, Calendar, Link as LinkIcon, Sun, Moon, Terminal, User, Plus, Copy, Check, Globe, Github, RefreshCw, Loader2, Edit3, Image as ImageIcon, Camera, HeartHandshake } from 'lucide-react';
+import { Bell, ChevronRight, ChevronLeft, X, HelpCircle, Send, Search, Sparkles, LayoutGrid, Heart, Trash2, ArrowLeft, ExternalLink, Info, MessageCircle, Code, Users, Calendar, Link as LinkIcon, Sun, Moon, Terminal, User, Plus, Copy, Check, Globe, Github, RefreshCw, Loader2, Edit3, Image as ImageIcon, Camera, HeartHandshake, Maximize2 } from 'lucide-react';
 
 const App: React.FC = () => {
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
@@ -15,6 +15,7 @@ const App: React.FC = () => {
   const [selectedDeveloperUsername, setSelectedDeveloperUsername] = useState<string | null>(null);
   const [favorites, setFavorites] = useState<string[]>([]);
   const [activeGalleryIndex, setActiveGalleryIndex] = useState(0);
+  const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
   const [theme, setTheme] = useState<'light' | 'dark'>(() => {
     if (typeof window !== 'undefined') {
       const saved = localStorage.getItem('theme');
@@ -42,6 +43,12 @@ const App: React.FC = () => {
   const [formLastEdited, setFormLastEdited] = useState(new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }));
   const [copySuccess, setCopySuccess] = useState(false);
   const [syncingIndex, setSyncingIndex] = useState<{ type: 'team' | 'supporter', index: number } | null>(null);
+
+  const selectedProject = useMemo(() => projects.find(p => p.id === selectedProjectId), [selectedProjectId]);
+  const galleryItems = useMemo(() => {
+    if (!selectedProject) return [];
+    return [selectedProject.thumbnail, ...(selectedProject.gallery || [])];
+  }, [selectedProject]);
 
   const generatedJson = useMemo(() => {
     const id = formName.toLowerCase().trim().replace(/\s+/g, '-').replace(/[^\w-]/g, '');
@@ -101,6 +108,31 @@ const App: React.FC = () => {
       return [...prev, id];
     });
   };
+
+  const nextLightbox = useCallback((e?: React.MouseEvent) => {
+    e?.stopPropagation();
+    if (lightboxIndex !== null) {
+      setLightboxIndex((lightboxIndex + 1) % galleryItems.length);
+    }
+  }, [lightboxIndex, galleryItems.length]);
+
+  const prevLightbox = useCallback((e?: React.MouseEvent) => {
+    e?.stopPropagation();
+    if (lightboxIndex !== null) {
+      setLightboxIndex((lightboxIndex - 1 + galleryItems.length) % galleryItems.length);
+    }
+  }, [lightboxIndex, galleryItems.length]);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (lightboxIndex === null) return;
+      if (e.key === 'Escape') setLightboxIndex(null);
+      if (e.key === 'ArrowRight') nextLightbox();
+      if (e.key === 'ArrowLeft') prevLightbox();
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [lightboxIndex, nextLightbox, prevLightbox]);
 
   const filteredProjects = useMemo(() => {
     return projects.filter(project => {
@@ -622,12 +654,8 @@ const App: React.FC = () => {
   );
 
   const renderProjectDetail = () => {
-    const selectedProject = projects.find(p => p.id === selectedProjectId);
     if (!selectedProject) return null;
     const isFav = favorites.includes(selectedProject.id);
-    
-    // Combine thumbnail and gallery for the display
-    const galleryItems = [selectedProject.thumbnail, ...(selectedProject.gallery || [])];
 
     return (
       <div className="py-10 max-w-6xl mx-auto">
@@ -695,13 +723,21 @@ const App: React.FC = () => {
 
           <div className="lg:col-span-4">
             <div className="space-y-4">
-              <div className="bg-slate-100 dark:bg-slate-800 rounded-2xl aspect-video overflow-hidden shadow-2xl border border-slate-200 dark:border-slate-700 relative group">
+              <div 
+                className="bg-slate-100 dark:bg-slate-800 rounded-2xl aspect-video overflow-hidden shadow-2xl border border-slate-200 dark:border-slate-700 relative group cursor-pointer"
+                onClick={() => setLightboxIndex(activeGalleryIndex)}
+              >
                 <img 
                   key={activeGalleryIndex} 
                   src={galleryItems[activeGalleryIndex]} 
-                  className="w-full h-full object-cover transition-opacity duration-300"
+                  className="w-full h-full object-cover transition-opacity duration-300 group-hover:scale-105"
                   onError={(e) => { e.currentTarget.src = `https://ui-avatars.com/api/?name=Asset&background=E31337&color=fff&size=800`; }}
                 />
+                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 flex items-center justify-center transition-all opacity-0 group-hover:opacity-100">
+                  <div className="p-3 bg-white/20 backdrop-blur-md rounded-full text-white">
+                    <Maximize2 className="w-6 h-6" />
+                  </div>
+                </div>
               </div>
               
               {galleryItems.length > 1 && (
@@ -721,21 +757,18 @@ const App: React.FC = () => {
           </div>
         </div>
 
-        {/* Full width Supporters Section placed direct above timeline */}
         {selectedProject.supporters && selectedProject.supporters.length > 0 && (
           <div className="mt-16 border-t border-slate-100 dark:border-slate-800 pt-12">
             <div className="flex items-center gap-3 mb-8">
               <HeartHandshake className="w-6 h-6 text-hive" />
               <h4 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight">Supporters & Contributors</h4>
             </div>
-            {/* Strict 3-column grid for Supporters */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {selectedProject.supporters.slice(0, 9).map((m, i) => (
                 <div 
                   key={i} 
                   className="flex items-center gap-4 cursor-pointer group/member bg-slate-50/50 dark:bg-slate-900/30 px-4 py-4 rounded-2xl border border-slate-100 dark:border-slate-800/50 hover:bg-white dark:hover:bg-slate-800 transition-all shadow-sm hover:shadow-md" 
                   onClick={() => handleDeveloperClick(m.name)}
-                  title={`${m.name}: ${m.role}`}
                 >
                   <img src={m.avatar} alt={m.name} className="w-12 h-12 rounded-full bg-slate-100 grayscale group-hover/member:grayscale-0 transition-all border border-slate-200 dark:border-slate-700 flex-shrink-0" />
                   <div className="min-w-0">
@@ -754,7 +787,6 @@ const App: React.FC = () => {
               <Calendar className="w-6 h-6 text-hive" />
               <h4 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight">Project Timeline</h4>
             </div>
-            {/* Vertical Line Container with Newest at Top order */}
             <div className="relative space-y-12 pl-8 border-l-2 border-slate-100 dark:border-slate-800">
               {[...selectedProject.timeline].reverse().map((event, idx) => (
                 <div key={idx} className="relative">
@@ -776,6 +808,54 @@ const App: React.FC = () => {
             </div>
           </div>
         )}
+
+        {/* Lightbox Modal */}
+        {lightboxIndex !== null && (
+          <div 
+            className="fixed inset-0 z-[100] bg-slate-950/95 backdrop-blur-xl flex flex-col items-center justify-center animate-in fade-in zoom-in duration-300 p-4 md:p-12"
+            onClick={() => setLightboxIndex(null)}
+          >
+            <button 
+              className="absolute top-6 right-6 p-3 bg-white/10 hover:bg-white/20 text-white rounded-full transition-colors z-20"
+              onClick={() => setLightboxIndex(null)}
+            >
+              <X className="w-6 h-6" />
+            </button>
+            
+            <div className="relative w-full max-w-6xl aspect-video md:aspect-auto md:h-full flex items-center justify-center group/lb">
+              <img 
+                src={galleryItems[lightboxIndex]} 
+                alt="Lightbox View" 
+                className="max-w-full max-h-full object-contain shadow-2xl rounded-lg"
+                onClick={(e) => e.stopPropagation()}
+              />
+              
+              {galleryItems.length > 1 && (
+                <>
+                  <button 
+                    className="absolute left-4 top-1/2 -translate-y-1/2 p-4 bg-white/5 hover:bg-white/10 text-white rounded-full transition-all opacity-0 group-hover/lb:opacity-100 -translate-x-4 group-hover/lb:translate-x-0"
+                    onClick={prevLightbox}
+                  >
+                    <ChevronLeft className="w-8 h-8" />
+                  </button>
+                  <button 
+                    className="absolute right-4 top-1/2 -translate-y-1/2 p-4 bg-white/5 hover:bg-white/10 text-white rounded-full transition-all opacity-0 group-hover/lb:opacity-100 translate-x-4 group-hover/lb:translate-x-0"
+                    onClick={nextLightbox}
+                  >
+                    <ChevronRight className="w-8 h-8" />
+                  </button>
+                </>
+              )}
+            </div>
+
+            <div className="mt-6 flex flex-col items-center gap-2 text-white">
+              <p className="text-sm font-black uppercase tracking-widest bg-white/10 px-4 py-1.5 rounded-full">
+                {lightboxIndex + 1} / {galleryItems.length}
+              </p>
+              <p className="text-xs text-white/40 font-bold uppercase tracking-tighter">Click anywhere to close · Use Arrows to navigate</p>
+            </div>
+          </div>
+        )}
       </div>
     );
   };
@@ -789,7 +869,6 @@ const App: React.FC = () => {
           <p className="text-slate-500 dark:text-slate-400">Meet the architects of the Hive ecosystem</p>
         </div>
       </div>
-      {/* Updated to 5 in a row as requested */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
         {uniqueDevelopers.map((dev) => (
           <div 
