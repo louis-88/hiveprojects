@@ -6,7 +6,7 @@ export const beeswap: Project = {
   "description": "A Hive browser wallet and Hive Engine DeFi application for inexpensive deposits and withdrawals to Hive Engine.",
   "thumbnail": "https://hive.io/images/apps/beeswap.png",
   "websiteUrl": "https://beeswap.dcity.io/convert",
-  "category": "defi",
+  "category": "DEX - Decentralized Exchanges",
   "isOpenSource": true,
   "lastEdited": "Dec 20, 2025"
 };

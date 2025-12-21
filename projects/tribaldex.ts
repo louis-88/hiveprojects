@@ -6,7 +6,7 @@ export const tribaldex: Project = {
   "description": "Create Tokens + Smart Contracts on the Hive blockchain.",
   "thumbnail": "https://hive.io/images/apps/tribaldex.png",
   "websiteUrl": "https://tribaldex.com",
-  "category": "DeFi",
+  "category": "DEX - Decentralized Exchanges",
   "isOpenSource": true,
   "lastEdited": "Dec 20, 2025"
 };

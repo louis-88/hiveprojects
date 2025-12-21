@@ -6,7 +6,7 @@ export const dlux: Project = {
   "description": "Build, post, and monetize virtual reality experiences without needing to know any code.",
   "thumbnail": "https://hive.io/images/apps/dlux.svg",
   "websiteUrl": "https://www.dlux.io/",
-  "category": "Specialized Hive Interfaces",
+  "category": "Frameworks",
   "isOpenSource": false,
   "lastEdited": "Dec 20, 2025"
 };

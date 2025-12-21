@@ -5,12 +5,13 @@ import { Project } from '../types';
 
 interface ProjectCardProps {
   project: Project;
+  layout?: 'list' | 'grid';
   isFavorite: boolean;
   onToggleFavorite: (id: string) => void;
   onProjectClick: (id: string) => void;
 }
 
-const ProjectCard: React.FC<ProjectCardProps> = ({ project, isFavorite, onToggleFavorite, onProjectClick }) => {
+const ProjectCard: React.FC<ProjectCardProps> = ({ project, layout = 'list', isFavorite, onToggleFavorite, onProjectClick }) => {
   const getStatusStyles = (status: Project['status']) => {
     switch (status) {
       case 'Live/Released':
@@ -25,6 +26,102 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, isFavorite, onToggle
         return 'bg-slate-500 text-white';
     }
   };
+
+  if (layout === 'grid') {
+    return (
+      <div 
+        className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-2xl overflow-hidden hover:shadow-xl dark:hover:shadow-slate-900/50 transition-all group cursor-pointer flex flex-col h-full"
+        onClick={() => onProjectClick(project.id)}
+      >
+        {/* Thumbnail Section */}
+        <div className="w-full aspect-video flex-shrink-0 bg-slate-100 dark:bg-slate-800 relative overflow-hidden shadow-inner">
+          <img 
+            src={project.thumbnail} 
+            alt={project.name}
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+            onError={(e) => {
+              (e.target as HTMLImageElement).src = `https://ui-avatars.com/api/?name=${encodeURIComponent(project.name)}&background=random&color=fff&size=400`;
+            }}
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent pointer-events-none" />
+          
+          {/* Top Overlays */}
+          <div className="absolute top-3 left-3 flex gap-2">
+            {project.status && (
+              <div className={`px-2 py-0.5 text-[8px] font-black uppercase rounded shadow-sm ${getStatusStyles(project.status)}`}>
+                {project.status}
+              </div>
+            )}
+          </div>
+
+          <button 
+            onClick={(e) => { e.stopPropagation(); onToggleFavorite(project.id); }}
+            className={`absolute top-3 right-3 p-2 rounded-full backdrop-blur-md transition-all border ${
+              isFavorite 
+                ? 'bg-red-500/90 border-red-400 text-white shadow-lg' 
+                : 'bg-black/20 border-white/20 text-white hover:bg-black/40'
+            }`}
+          >
+            <Heart className={`w-4 h-4 ${isFavorite ? 'fill-current' : ''}`} />
+          </button>
+
+          {/* Bottom Indicators */}
+          <div className="absolute bottom-3 left-3">
+             <span className="text-[10px] font-black uppercase tracking-wider text-white bg-hive px-2 py-0.5 rounded shadow-sm">
+              {project.category}
+            </span>
+          </div>
+        </div>
+
+        {/* Content Section */}
+        <div className="p-5 flex-1 flex flex-col min-w-0">
+          <h3 className="text-lg font-bold text-slate-900 dark:text-white group-hover:text-hive transition-colors mb-2 line-clamp-1">
+            {project.name}
+          </h3>
+          
+          <p className="text-xs text-slate-500 dark:text-slate-400 mb-4 leading-relaxed line-clamp-3">
+            {project.description}
+          </p>
+
+          <div className="mt-auto pt-4 flex items-center justify-between gap-4 border-t border-slate-50 dark:border-slate-800">
+            {/* Minimal Team */}
+            {project.team && (
+              <div className="flex -space-x-2">
+                {project.team.slice(0, 3).map((member, idx) => (
+                  <img 
+                    key={idx}
+                    src={member.avatar}
+                    alt={member.name}
+                    className="w-6 h-6 rounded-full border-2 border-white dark:border-slate-900 bg-slate-200"
+                  />
+                ))}
+              </div>
+            )}
+
+            <div className="flex items-center gap-1.5">
+              <button 
+                onClick={(e) => { e.stopPropagation(); onProjectClick(project.id); }}
+                className="p-2 text-slate-400 hover:text-hive transition-colors"
+                title="View Details"
+              >
+                <ChevronRight className="w-5 h-5" />
+              </button>
+              
+              <a 
+                href={project.websiteUrl} 
+                target="_blank" 
+                rel="noopener noreferrer"
+                onClick={(e) => e.stopPropagation()}
+                className="bg-slate-100 dark:bg-slate-800 p-2 rounded-xl text-slate-600 dark:text-slate-300 hover:text-hive transition-all"
+              >
+                <ExternalLink className="w-4 h-4" />
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div 

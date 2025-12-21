@@ -5,12 +5,13 @@ import CategorySidebar from './components/CategorySidebar';
 import ProjectCard from './components/ProjectCard';
 import { projects, categories } from './data';
 import { ViewType, Project, TeamMember, TimelineEvent } from './types';
-import { Bell, ChevronRight, ChevronLeft, X, HelpCircle, Send, Search, Sparkles, LayoutGrid, Heart, Trash2, ArrowLeft, ExternalLink, Info, MessageCircle, Code, Users, Calendar, Link as LinkIcon, Sun, Moon, Terminal, User, Plus, Copy, Check, Globe, Github, RefreshCw, Loader2, Edit3, Image as ImageIcon, Camera, HeartHandshake, Maximize2 } from 'lucide-react';
+import { Bell, ChevronRight, ChevronLeft, X, HelpCircle, Send, Search, Sparkles, LayoutGrid, LayoutList, Heart, Trash2, ArrowLeft, ExternalLink, Info, MessageCircle, Code, Users, Calendar, Link as LinkIcon, Sun, Moon, Terminal, User, Plus, Copy, Check, Globe, Github, RefreshCw, Loader2, Edit3, Image as ImageIcon, Camera, HeartHandshake, Maximize2 } from 'lucide-react';
 
 const App: React.FC = () => {
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [currentView, setCurrentView] = useState<ViewType>('home');
+  const [layout, setLayout] = useState<'list' | 'grid'>('list');
   const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null);
   const [selectedDeveloperUsername, setSelectedDeveloperUsername] = useState<string | null>(null);
   const [favorites, setFavorites] = useState<string[]>([]);
@@ -49,6 +50,11 @@ const App: React.FC = () => {
     if (!selectedProject) return [];
     return [selectedProject.thumbnail, ...(selectedProject.gallery || [])];
   }, [selectedProject]);
+
+  const activeCategoryData = useMemo(() => 
+    categories.find(c => c.name === activeCategory),
+    [activeCategory]
+  );
 
   const generatedJson = useMemo(() => {
     const id = formName.toLowerCase().trim().replace(/\s+/g, '-').replace(/[^\w-]/g, '');
@@ -347,35 +353,70 @@ const App: React.FC = () => {
             </div>
           </div>
         )}
-        <div className="flex items-center justify-between mb-6 px-1">
-          <div className="flex items-center gap-2">
-            <div className="p-1.5 bg-hive/10 rounded-lg">
-              <Bell className="w-5 h-5 text-hive" />
+        <div className="mb-6 px-1">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-3">
+            <div className="flex items-center gap-2">
+              <div className="p-1.5 bg-hive/10 rounded-lg">
+                <Bell className="w-5 h-5 text-hive" />
+              </div>
+              <h2 className="text-xl font-bold text-slate-900 dark:text-white">
+                {activeCategory ? activeCategory : 'Recent Discoveries'}
+              </h2>
             </div>
-            <h2 className="text-xl font-bold text-slate-900 dark:text-white">
-              {activeCategory ? activeCategory : 'Recent Discoveries'}
-            </h2>
+            
+            <div className="flex items-center gap-4">
+              {/* Layout Toggle - NEW */}
+              <div className="flex items-center bg-slate-100 dark:bg-slate-800 p-1 rounded-xl border border-slate-200 dark:border-slate-700">
+                <button 
+                  onClick={() => setLayout('list')}
+                  className={`p-1.5 rounded-lg transition-all ${layout === 'list' ? 'bg-white dark:bg-slate-700 text-hive shadow-sm' : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'}`}
+                  title="List View"
+                >
+                  <LayoutList className="w-4 h-4" />
+                </button>
+                <button 
+                  onClick={() => setLayout('grid')}
+                  className={`p-1.5 rounded-lg transition-all ${layout === 'grid' ? 'bg-white dark:bg-slate-700 text-hive shadow-sm' : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'}`}
+                  title="Grid View"
+                >
+                  <LayoutGrid className="w-4 h-4" />
+                </button>
+              </div>
+
+              <button 
+                onClick={() => setCurrentView('categories')}
+                className="text-sm text-hive font-bold hover:underline flex items-center gap-1 group whitespace-nowrap"
+              >
+                All Categories <ChevronRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
+              </button>
+            </div>
           </div>
-          <button 
-            onClick={() => setCurrentView('categories')}
-            className="text-sm text-hive font-bold hover:underline flex items-center gap-1 group"
-          >
-            All Categories <ChevronRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
-          </button>
+          {activeCategory && activeCategoryData && (
+            <div className="p-4 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-xl shadow-sm animate-in fade-in slide-in-from-top-2 duration-300">
+              <div className="flex gap-3">
+                <Info className="w-5 h-5 text-hive flex-shrink-0 mt-0.5" />
+                <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed font-medium">
+                  {activeCategoryData.description}
+                </p>
+              </div>
+            </div>
+          )}
         </div>
-        <div className="flex flex-col gap-4">
+
+        <div className={layout === 'grid' ? 'grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6' : 'flex flex-col gap-4'}>
           {filteredProjects.length > 0 ? (
             filteredProjects.map(project => (
               <ProjectCard 
                 key={project.id} 
                 project={project} 
+                layout={layout}
                 isFavorite={favorites.includes(project.id)}
                 onToggleFavorite={toggleFavorite}
                 onProjectClick={handleProjectClick}
               />
             ))
           ) : (
-            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-16 text-center">
+            <div className="col-span-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-16 text-center">
               <div className="inline-flex p-5 bg-slate-50 dark:bg-slate-800 rounded-full mb-6">
                 <Search className="w-10 h-10 text-slate-300 dark:text-slate-600" />
               </div>

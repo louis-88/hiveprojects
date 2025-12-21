@@ -6,7 +6,7 @@ export const hivedex: Project = {
   "description": "Modern exchange interface for the internal market (HIVE/HBD)",
   "thumbnail": "https://hive.io/images/apps/hivedex.png",
   "websiteUrl": "https://hivedex.io",
-  "category": "Exchanges",
+  "category": "DEX - Decentralized Exchanges",
   "isOpenSource": false,
   "lastEdited": "Dec 20, 2025"
 };
