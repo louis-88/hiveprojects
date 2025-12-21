@@ -31,6 +31,7 @@ const App: React.FC = () => {
   const [formDesc, setFormDesc] = useState('');
   const [formCat, setFormCat] = useState(categories[0].name);
   const [formThumb, setFormThumb] = useState('');
+  const [formLogo, setFormLogo] = useState('');
   const [formGallery, setFormGallery] = useState<string[]>([]);
   const [formWeb, setFormWeb] = useState('');
   const [formGit, setFormGit] = useState('');
@@ -48,7 +49,7 @@ const App: React.FC = () => {
   const selectedProject = useMemo(() => projects.find(p => p.id === selectedProjectId), [selectedProjectId]);
   const galleryItems = useMemo(() => {
     if (!selectedProject) return [];
-    return [selectedProject.thumbnail, ...(selectedProject.gallery || [])];
+    return [selectedProject.thumbnail || selectedProject.logo || '', ...(selectedProject.gallery || [])].filter(Boolean);
   }, [selectedProject]);
 
   const activeCategoryData = useMemo(() => 
@@ -64,6 +65,7 @@ const App: React.FC = () => {
       description: formDesc || 'Short description goes here...',
       category: formCat,
       thumbnail: formThumb || 'https://images.hive.blog/DQm...',
+      logo: formLogo || undefined,
       gallery: formGallery.length > 0 ? formGallery.filter(url => !!url) : undefined,
       websiteUrl: formWeb || 'https://...',
       githubUrl: formGit || undefined,
@@ -77,7 +79,7 @@ const App: React.FC = () => {
       lastEdited: formLastEdited
     };
     return JSON.stringify(projectObj, null, 2);
-  }, [formName, formDesc, formCat, formThumb, formGallery, formWeb, formGit, formAnn, formCont, formStatus, formIsOpen, formTeam, formSupporters, formTimeline, formLastEdited]);
+  }, [formName, formDesc, formCat, formThumb, formLogo, formGallery, formWeb, formGit, formAnn, formCont, formStatus, formIsOpen, formTeam, formSupporters, formTimeline, formLastEdited]);
 
   useEffect(() => {
     const root = window.document.documentElement;
@@ -202,6 +204,7 @@ const App: React.FC = () => {
     setFormDesc(project.description);
     setFormCat(project.category);
     setFormThumb(project.thumbnail);
+    setFormLogo(project.logo || '');
     setFormGallery(project.gallery || []);
     setFormWeb(project.websiteUrl);
     setFormGit(project.githubUrl || '');
@@ -372,7 +375,6 @@ const App: React.FC = () => {
             </div>
             
             <div className="flex items-center gap-4">
-              {/* Layout Toggle - NEW */}
               <div className="flex items-center bg-slate-100 dark:bg-slate-800 p-1 rounded-xl border border-slate-200 dark:border-slate-700">
                 <button 
                   onClick={() => setLayout('list')}
@@ -467,9 +469,15 @@ const App: React.FC = () => {
                   {categories.map(c => <option key={c.id} value={c.name}>{c.name}</option>)}
                 </select>
               </div>
-              <div className="space-y-2">
-                <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Main Thumbnail (16:9 recommended)</label>
-                <input value={formThumb} onChange={e => setFormThumb(e.target.value)} type="url" placeholder="https://..." className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border-none rounded-xl focus:ring-2 focus:ring-hive/50 dark:text-white outline-none" />
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Main Thumbnail (16:9)</label>
+                  <input value={formThumb} onChange={e => setFormThumb(e.target.value)} type="url" placeholder="https://..." className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border-none rounded-xl focus:ring-2 focus:ring-hive/50 dark:text-white outline-none" />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Project Logo (Any aspect ratio)</label>
+                  <input value={formLogo} onChange={e => setFormLogo(e.target.value)} type="url" placeholder="https://..." className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border-none rounded-xl focus:ring-2 focus:ring-hive/50 dark:text-white outline-none" />
+                </div>
               </div>
               <div className="space-y-2">
                 <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Short Pitch</label>
@@ -704,62 +712,88 @@ const App: React.FC = () => {
   const renderProjectDetail = () => {
     if (!selectedProject) return null;
     const isFav = favorites.includes(selectedProject.id);
+    // Use logo if available, fallback to thumbnail
+    const displayLogo = selectedProject.logo || selectedProject.thumbnail;
 
     return (
       <div className="py-10 max-w-6xl mx-auto">
         <button onClick={() => setCurrentView('home')} className="flex items-center gap-2 text-sm text-slate-500 hover:text-hive font-bold mb-8 group"><ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1" /> Back to Directory</button>
         
-        <div className="flex flex-col md:flex-row justify-between items-start gap-6 mb-12">
-          <div className="flex items-center gap-6">
-            <div className="w-24 h-24 bg-white dark:bg-slate-900 rounded-3xl p-4 shadow-xl border border-slate-100 dark:border-slate-800">
-              <img src={selectedProject.thumbnail} alt={selectedProject.name} className="w-full h-full object-contain" />
-            </div>
-            <div>
-              <h1 className="text-4xl font-black text-slate-900 dark:text-white tracking-tight">{selectedProject.name}</h1>
-              <div className="flex flex-col gap-1 mt-2">
-                <p className="text-hive font-bold flex items-center gap-2 text-sm"><LayoutGrid className="w-4 h-4" /> {selectedProject.category}</p>
-                {selectedProject.lastEdited && (
-                  <p className="text-slate-400 dark:text-slate-500 text-[10px] font-medium uppercase tracking-[0.1em] flex items-center gap-1.5 opacity-80">
-                    <Calendar className="w-3 h-3" /> Last Entry Update: {selectedProject.lastEdited}
-                  </p>
-                )}
-              </div>
+        <div className="flex flex-col md:flex-row justify-between items-start gap-8 mb-12">
+          <div className="text-center sm:text-left flex-1 min-w-0">
+            <h1 className="text-4xl sm:text-5xl font-black text-slate-900 dark:text-white tracking-tight leading-tight">{selectedProject.name}</h1>
+            <div className="flex flex-col gap-2 mt-3">
+              <p className="text-hive font-bold flex items-center justify-center sm:justify-start gap-2 text-base">
+                <LayoutGrid className="w-5 h-5" /> 
+                <span className="bg-hive/5 px-3 py-1 rounded-full">{selectedProject.category}</span>
+              </p>
+              {selectedProject.lastEdited && (
+                <p className="text-slate-400 dark:text-slate-500 text-[11px] font-bold uppercase tracking-widest flex items-center justify-center sm:justify-start gap-1.5 opacity-70">
+                  <Calendar className="w-3.5 h-3.5" /> Registry Update: {selectedProject.lastEdited}
+                </p>
+              )}
             </div>
           </div>
-          <div className="flex items-center gap-3">
-            <button onClick={() => toggleFavorite(selectedProject.id)} className={`flex items-center gap-2 px-6 py-3 rounded-full font-bold border transition-all ${isFav ? 'bg-red-50 border-red-200 text-red-500' : 'bg-white dark:bg-slate-900 border-slate-200 text-slate-600 hover:text-red-500'}`}><Heart className={`w-4 h-4 ${isFav ? 'fill-current' : ''}`} /> {isFav ? 'Favorite' : 'Add favorite'}</button>
+          
+          <div className="flex items-center gap-3 w-full md:w-auto justify-center self-center sm:self-start">
+            <button 
+              onClick={() => toggleFavorite(selectedProject.id)} 
+              className={`flex items-center gap-2 px-8 py-3.5 rounded-2xl font-black transition-all border shadow-lg ${
+                isFav 
+                  ? 'bg-red-50 border-red-200 text-red-500 shadow-red-100 dark:bg-red-900/10 dark:border-red-800 dark:shadow-none' 
+                  : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300 hover:text-red-500 hover:border-red-200 shadow-slate-100 dark:shadow-none'
+              }`}
+            >
+              <Heart className={`w-5 h-5 ${isFav ? 'fill-current' : ''}`} /> 
+              {isFav ? 'Favorited' : 'Bookmark Project'}
+            </button>
           </div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 mb-16">
-          <div className="lg:col-span-3 space-y-8">
-            <section><h4 className="text-xs font-black uppercase tracking-widest text-slate-400 mb-4">Project Website</h4><a href={selectedProject.websiteUrl} target="_blank" className="text-hive hover:underline flex items-center gap-2 break-all text-sm font-medium">{selectedProject.websiteUrl} <ExternalLink className="w-3.5 h-3.5" /></a></section>
-            {selectedProject.githubUrl && <section><h4 className="text-xs font-black uppercase tracking-widest text-slate-400 mb-4">GitHub</h4><a href={selectedProject.githubUrl} target="_blank" className="text-hive hover:underline flex items-center gap-2 break-all text-sm font-medium">Source Code <Code className="w-3.5 h-3.5" /></a></section>}
-            {selectedProject.contactUrl && <section><h4 className="text-xs font-black uppercase tracking-widest text-slate-400 mb-4">Contact</h4><a href={selectedProject.contactUrl} target="_blank" className="text-hive hover:underline flex items-center gap-2 break-all text-sm font-medium">Get in touch <MessageCircle className="w-3.5 h-3.5" /></a></section>}
-            <div className="pt-6 border-t border-slate-100 dark:border-slate-800">
-               <button onClick={() => handleRequestChanges(selectedProject)} className="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-hive transition-all group/req">
-                 <Edit3 className="w-3 h-3 group-hover/req:rotate-12 transition-transform" />
-                 Request Info Update
-               </button>
+          <div className="lg:col-span-3 space-y-10">
+            {/* Optimized Logo repositioned to sidebar above Project Website */}
+            <div className="h-40 w-full bg-white dark:bg-slate-800 rounded-3xl shadow-xl shadow-slate-200/50 dark:shadow-none border border-slate-100 dark:border-slate-700 flex items-center justify-center overflow-hidden transition-all group/logo p-8">
+              <img 
+                src={displayLogo} 
+                alt={`${selectedProject.name} Logo`} 
+                className="max-h-full max-w-full w-auto object-contain transition-transform duration-500 group-hover/logo:scale-105" 
+                onError={(e) => { e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(selectedProject.name)}&background=E31337&color=fff&size=256`; }}
+              />
+            </div>
+
+            <div className="space-y-8">
+              <section><h4 className="text-xs font-black uppercase tracking-widest text-slate-400 mb-4">Project Website</h4><a href={selectedProject.websiteUrl} target="_blank" className="text-hive hover:underline font-bold flex items-center gap-2 break-all text-sm group/link">{selectedProject.websiteUrl} <ExternalLink className="w-3.5 h-3.5 transition-transform group-hover/link:-translate-y-0.5 group-hover/link:translate-x-0.5" /></a></section>
+              {selectedProject.githubUrl && <section><h4 className="text-xs font-black uppercase tracking-widest text-slate-400 mb-4">GitHub</h4><a href={selectedProject.githubUrl} target="_blank" className="text-hive hover:underline font-bold flex items-center gap-2 break-all text-sm group/link">Repository <Code className="w-3.5 h-3.5 transition-transform group-hover/link:rotate-12" /></a></section>}
+              {selectedProject.contactUrl && <section><h4 className="text-xs font-black uppercase tracking-widest text-slate-400 mb-4">Connect</h4><a href={selectedProject.contactUrl} target="_blank" className="text-hive hover:underline font-bold flex items-center gap-2 break-all text-sm group/link">Official Support <MessageCircle className="w-3.5 h-3.5 transition-transform group-hover/link:scale-110" /></a></section>}
+              <div className="pt-6 border-t border-slate-100 dark:border-slate-800">
+                 <button onClick={() => handleRequestChanges(selectedProject)} className="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-hive transition-all group/req">
+                   <Edit3 className="w-3 h-3 group-hover/req:rotate-12 transition-transform" />
+                   Request Info Update
+                 </button>
+              </div>
             </div>
           </div>
           
           <div className="lg:col-span-5 space-y-12">
-            <section><h4 className="text-xs font-black uppercase tracking-widest text-slate-400 mb-4">Description</h4><p className="text-slate-700 dark:text-slate-300 leading-relaxed">{selectedProject.description}</p></section>
+            <section>
+              <h4 className="text-xs font-black uppercase tracking-widest text-slate-400 mb-4">Overview</h4>
+              <p className="text-slate-700 dark:text-slate-300 leading-relaxed text-lg font-medium opacity-90">{selectedProject.description}</p>
+            </section>
             
             <div className="space-y-12">
               {selectedProject.team && (
                 <section>
                   <h4 className="text-xs font-black uppercase tracking-widest text-slate-400 mb-6 flex items-center gap-2">
-                    <Users className="w-3.5 h-3.5" /> Core Team
+                    <Users className="w-3.5 h-3.5" /> Core Engineering Team
                   </h4>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     {selectedProject.team.map((m, i) => (
-                      <div key={i} className="flex items-center gap-4 cursor-pointer group/member bg-slate-50 dark:bg-slate-900/50 p-3 rounded-2xl border border-slate-100 dark:border-slate-800 hover:border-hive/20 transition-all" onClick={() => handleDeveloperClick(m.name)}>
-                        <img src={m.avatar} alt={m.name} className="w-10 h-10 rounded-full bg-slate-100 group-hover/member:ring-2 group-hover/member:ring-hive transition-all" />
-                        <div>
-                          <div className="font-bold text-slate-900 dark:text-white group-hover/member:text-hive transition-colors uppercase tracking-tight text-sm">@{m.name}</div>
-                          <div className="text-[10px] text-slate-500 uppercase tracking-tighter">{m.role}</div>
+                      <div key={i} className="flex items-center gap-4 cursor-pointer group/member bg-slate-50 dark:bg-slate-900/50 p-4 rounded-2xl border border-slate-100 dark:border-slate-800 hover:border-hive/20 transition-all" onClick={() => handleDeveloperClick(m.name)}>
+                        <img src={m.avatar} alt={m.name} className="w-12 h-12 rounded-full bg-slate-100 group-hover/member:ring-2 group-hover/member:ring-hive transition-all border-2 border-white dark:border-slate-700 shadow-sm" />
+                        <div className="min-w-0">
+                          <div className="font-bold text-slate-900 dark:text-white group-hover/member:text-hive transition-colors uppercase tracking-tight text-sm truncate">@{m.name}</div>
+                          <div className="text-[10px] text-slate-500 uppercase tracking-tighter truncate">{m.role}</div>
                         </div>
                       </div>
                     ))}
@@ -772,7 +806,7 @@ const App: React.FC = () => {
           <div className="lg:col-span-4">
             <div className="space-y-4">
               <div 
-                className="bg-slate-100 dark:bg-slate-800 rounded-2xl aspect-video overflow-hidden shadow-2xl border border-slate-200 dark:border-slate-700 relative group cursor-pointer"
+                className="bg-slate-100 dark:bg-slate-800 rounded-3xl aspect-video overflow-hidden shadow-2xl border border-slate-200 dark:border-slate-700 relative group cursor-pointer"
                 onClick={() => setLightboxIndex(activeGalleryIndex)}
               >
                 <img 
@@ -782,19 +816,19 @@ const App: React.FC = () => {
                   onError={(e) => { e.currentTarget.src = `https://ui-avatars.com/api/?name=Asset&background=E31337&color=fff&size=800`; }}
                 />
                 <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 flex items-center justify-center transition-all opacity-0 group-hover:opacity-100">
-                  <div className="p-3 bg-white/20 backdrop-blur-md rounded-full text-white">
+                  <div className="p-4 bg-white/20 backdrop-blur-md rounded-full text-white shadow-xl">
                     <Maximize2 className="w-6 h-6" />
                   </div>
                 </div>
               </div>
               
               {galleryItems.length > 1 && (
-                <div className="grid grid-cols-5 gap-2">
+                <div className="grid grid-cols-5 gap-3">
                   {galleryItems.map((img, idx) => (
                     <button 
                       key={idx}
                       onClick={() => setActiveGalleryIndex(idx)}
-                      className={`aspect-video rounded-lg overflow-hidden border-2 transition-all ${activeGalleryIndex === idx ? 'border-hive scale-105 shadow-md' : 'border-transparent opacity-60 hover:opacity-100'}`}
+                      className={`aspect-video rounded-xl overflow-hidden border-2 transition-all ${activeGalleryIndex === idx ? 'border-hive scale-105 shadow-lg' : 'border-transparent opacity-60 hover:opacity-100'}`}
                     >
                       <img src={img} className="w-full h-full object-cover" />
                     </button>
@@ -808,20 +842,20 @@ const App: React.FC = () => {
         {selectedProject.supporters && selectedProject.supporters.length > 0 && (
           <div className="mt-16 border-t border-slate-100 dark:border-slate-800 pt-12">
             <div className="flex items-center gap-3 mb-8">
-              <HeartHandshake className="w-6 h-6 text-hive" />
-              <h4 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight">Supporters & Contributors</h4>
+              <HeartHandshake className="w-7 h-7 text-hive" />
+              <h4 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight">Ecosystem Supporters</h4>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {selectedProject.supporters.slice(0, 9).map((m, i) => (
+              {selectedProject.supporters.slice(0, 12).map((m, i) => (
                 <div 
                   key={i} 
-                  className="flex items-center gap-4 cursor-pointer group/member bg-slate-50/50 dark:bg-slate-900/30 px-4 py-4 rounded-2xl border border-slate-100 dark:border-slate-800/50 hover:bg-white dark:hover:bg-slate-800 transition-all shadow-sm hover:shadow-md" 
+                  className="flex items-center gap-4 cursor-pointer group/member bg-slate-50/50 dark:bg-slate-900/30 px-5 py-5 rounded-3xl border border-slate-100 dark:border-slate-800/50 hover:bg-white dark:hover:bg-slate-800 transition-all shadow-sm hover:shadow-md" 
                   onClick={() => handleDeveloperClick(m.name)}
                 >
-                  <img src={m.avatar} alt={m.name} className="w-12 h-12 rounded-full bg-slate-100 grayscale group-hover/member:grayscale-0 transition-all border border-slate-200 dark:border-slate-700 flex-shrink-0" />
+                  <img src={m.avatar} alt={m.name} className="w-14 h-14 rounded-full bg-slate-100 grayscale group-hover/member:grayscale-0 transition-all border border-slate-200 dark:border-slate-700 flex-shrink-0" />
                   <div className="min-w-0">
-                    <div className="font-bold text-slate-800 dark:text-slate-200 group-hover/member:text-hive transition-colors tracking-tight text-sm">@{m.name}</div>
-                    <div className="text-xs text-slate-500 dark:text-slate-400 leading-normal mt-1 whitespace-pre-wrap break-words">{m.role}</div>
+                    <div className="font-bold text-slate-800 dark:text-slate-200 group-hover/member:text-hive transition-colors tracking-tight text-base">@{m.name}</div>
+                    <div className="text-xs text-slate-500 dark:text-slate-400 leading-normal mt-1 whitespace-pre-wrap break-words italic">{m.role}</div>
                   </div>
                 </div>
               ))}
@@ -832,24 +866,24 @@ const App: React.FC = () => {
         {selectedProject.timeline && selectedProject.timeline.length > 0 && (
           <div className="mt-16 border-t border-slate-100 dark:border-slate-800 pt-16">
             <div className="flex items-center gap-3 mb-10">
-              <Calendar className="w-6 h-6 text-hive" />
-              <h4 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight">Project Timeline</h4>
+              <Calendar className="w-7 h-7 text-hive" />
+              <h4 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight">Project Milestones</h4>
             </div>
             <div className="relative space-y-12 pl-8 border-l-2 border-slate-100 dark:border-slate-800">
               {[...selectedProject.timeline].reverse().map((event, idx) => (
                 <div key={idx} className="relative">
-                  <div className="absolute left-0 top-1.5 w-4 h-4 bg-white dark:bg-slate-900 border-4 border-hive rounded-full z-10 -translate-x-[calc(2rem+1px+50%)]" />
-                  <div className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 p-6 rounded-2xl shadow-sm">
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3">
-                      <span className="text-[10px] font-black text-hive uppercase tracking-widest bg-hive/5 px-2 py-1 rounded inline-block w-fit">{event.date}</span>
+                  <div className="absolute left-0 top-1.5 w-5 h-5 bg-white dark:bg-slate-900 border-[5px] border-hive rounded-full z-10 -translate-x-[calc(2rem+1px+50%)] shadow-sm" />
+                  <div className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 p-8 rounded-3xl shadow-sm hover:shadow-md transition-shadow">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+                      <span className="text-[11px] font-black text-hive uppercase tracking-widest bg-hive/5 px-3 py-1.5 rounded-full inline-block w-fit">{event.date}</span>
                       {event.linkUrl && (
-                        <a href={event.linkUrl} target="_blank" rel="noopener noreferrer" className="text-xs font-bold text-slate-400 hover:text-hive flex items-center gap-1 transition-colors">
-                          <LinkIcon className="w-3 h-3" /> View Update
+                        <a href={event.linkUrl} target="_blank" rel="noopener noreferrer" className="text-xs font-bold text-slate-400 hover:text-hive flex items-center gap-1.5 transition-colors">
+                          <LinkIcon className="w-3.5 h-3.5" /> Read Announcement
                         </a>
                       )}
                     </div>
-                    <h5 className="text-lg font-bold text-slate-900 dark:text-white mb-2">{event.title}</h5>
-                    <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">{event.description}</p>
+                    <h5 className="text-xl font-black text-slate-900 dark:text-white mb-3 tracking-tight">{event.title}</h5>
+                    <p className="text-base text-slate-600 dark:text-slate-400 leading-relaxed font-medium opacity-90">{event.description}</p>
                   </div>
                 </div>
               ))}
@@ -860,47 +894,47 @@ const App: React.FC = () => {
         {/* Lightbox Modal */}
         {lightboxIndex !== null && (
           <div 
-            className="fixed inset-0 z-[100] bg-slate-950/95 backdrop-blur-xl flex flex-col items-center justify-center animate-in fade-in zoom-in duration-300 p-4 md:p-12"
+            className="fixed inset-0 z-[100] bg-slate-950/98 backdrop-blur-2xl flex flex-col items-center justify-center animate-in fade-in zoom-in duration-300 p-4 md:p-12"
             onClick={() => setLightboxIndex(null)}
           >
             <button 
-              className="absolute top-6 right-6 p-3 bg-white/10 hover:bg-white/20 text-white rounded-full transition-colors z-20"
+              className="absolute top-8 right-8 p-4 bg-white/10 hover:bg-white/20 text-white rounded-full transition-all hover:rotate-90 z-20"
               onClick={() => setLightboxIndex(null)}
             >
-              <X className="w-6 h-6" />
+              <X className="w-8 h-8" />
             </button>
             
-            <div className="relative w-full max-w-6xl aspect-video md:aspect-auto md:h-full flex items-center justify-center group/lb">
+            <div className="relative w-full max-w-7xl aspect-video md:aspect-auto md:h-full flex items-center justify-center group/lb">
               <img 
                 src={galleryItems[lightboxIndex]} 
                 alt="Lightbox View" 
-                className="max-w-full max-h-full object-contain shadow-2xl rounded-lg"
+                className="max-w-full max-h-[85vh] object-contain shadow-[0_0_80px_rgba(0,0,0,0.5)] rounded-2xl"
                 onClick={(e) => e.stopPropagation()}
               />
               
               {galleryItems.length > 1 && (
                 <>
                   <button 
-                    className="absolute left-4 top-1/2 -translate-y-1/2 p-4 bg-white/5 hover:bg-white/10 text-white rounded-full transition-all opacity-0 group-hover/lb:opacity-100 -translate-x-4 group-hover/lb:translate-x-0"
+                    className="absolute left-4 top-1/2 -translate-y-1/2 p-6 bg-white/5 hover:bg-white/15 text-white rounded-full transition-all opacity-0 group-hover/lb:opacity-100 -translate-x-4 group-hover/lb:translate-x-0"
                     onClick={prevLightbox}
                   >
-                    <ChevronLeft className="w-8 h-8" />
+                    <ChevronLeft className="w-12 h-12" />
                   </button>
                   <button 
-                    className="absolute right-4 top-1/2 -translate-y-1/2 p-4 bg-white/5 hover:bg-white/10 text-white rounded-full transition-all opacity-0 group-hover/lb:opacity-100 translate-x-4 group-hover/lb:translate-x-0"
+                    className="absolute right-4 top-1/2 -translate-y-1/2 p-6 bg-white/5 hover:bg-white/15 text-white rounded-full transition-all opacity-0 group-hover/lb:opacity-100 translate-x-4 group-hover/lb:translate-x-0"
                     onClick={nextLightbox}
                   >
-                    <ChevronRight className="w-8 h-8" />
+                    <ChevronRight className="w-12 h-12" />
                   </button>
                 </>
               )}
             </div>
 
-            <div className="mt-6 flex flex-col items-center gap-2 text-white">
-              <p className="text-sm font-black uppercase tracking-widest bg-white/10 px-4 py-1.5 rounded-full">
-                {lightboxIndex + 1} / {galleryItems.length}
+            <div className="mt-8 flex flex-col items-center gap-3 text-white">
+              <p className="text-base font-black uppercase tracking-[0.3em] bg-white/10 px-8 py-3 rounded-full backdrop-blur-md">
+                {lightboxIndex + 1} <span className="opacity-30">/</span> {galleryItems.length}
               </p>
-              <p className="text-xs text-white/40 font-bold uppercase tracking-tighter">Click anywhere to close · Use Arrows to navigate</p>
+              <p className="text-xs text-white/50 font-bold uppercase tracking-widest animate-pulse">Click background to dismiss · Arrow keys enabled</p>
             </div>
           </div>
         )}

@@ -48,6 +48,39 @@ import { vimm } from './vimm';
 import { waivio } from './waivio';
 import { woo } from './woo';
 import { worldmappin } from './worldmappin';
+import { binance } from './binance';
+import { bitget } from './bitget';
+import { bithumb } from './bithumb';
+import { bitpanda } from './bitpanda';
+import { bitrue } from './bitrue';
+import { bydfi } from './bydfi';
+import { changelly } from './changelly';
+import { changenow } from './changenow';
+import { coindcx } from './coindcx';
+import { coinex } from './coinex';
+import { coinoswap } from './coinoswap';
+import { digifinex } from './digifinex';
+import { easybit } from './easybit';
+import { gateio } from './gateio';
+import { hitbtc } from './hitbtc';
+import { hive_engine } from './hive-engine';
+import { htx } from './htx';
+import { indodax } from './indodax';
+import { kcex } from './kcex';
+import { lcx } from './lcx';
+import { mexc } from './mexc';
+import { nami } from './nami';
+import { pionex } from './pionex';
+import { simpleswap } from './simpleswap';
+import { stealthex } from './stealthex';
+import { swapspace } from './swapspace';
+import { swapzone } from './swapzone';
+import { tokocrypto } from './tokocrypto';
+import { upbit } from './upbit';
+import { wazirx } from './wazirx';
+import { weex } from './weex';
+import { xbts } from './xbts';
+import { xt } from './xt';
 
 export const projects: Project[] = [
   actifit,
@@ -99,6 +132,39 @@ export const projects: Project[] = [
   waivio,
   woo,
   worldmappin,
+  binance,
+  bitget,
+  bithumb,
+  bitpanda,
+  bitrue,
+  bydfi,
+  changelly,
+  changenow,
+  coindcx,
+  coinex,
+  coinoswap,
+  digifinex,
+  easybit,
+  gateio,
+  hitbtc,
+  hive_engine,
+  htx,
+  indodax,
+  kcex,
+  lcx,
+  mexc,
+  nami,
+  pionex,
+  simpleswap,
+  stealthex,
+  swapspace,
+  swapzone,
+  tokocrypto,
+  upbit,
+  wazirx,
+  weex,
+  xbts,
+  xt,
 ];
 
 export default projects;

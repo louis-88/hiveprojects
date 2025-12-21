@@ -5,6 +5,7 @@ export const hivepunks: Project = {
   "name": "HivePunks",
   "description": "Collectible auto-generated NFT punks.",
   "thumbnail": "https://hive.io/images/apps/hivepunks.png",
+  "logo": "https://punks.usehive.com/img/logo.png",
   "websiteUrl": "https://punks.usehive.com",
   "category": "DeFi",
   "isOpenSource": false,

@@ -18,6 +18,7 @@ export interface Project {
   description: string;
   category: string;
   thumbnail: string;
+  logo?: string;
   gallery?: string[];
   websiteUrl: string;
   githubUrl?: string;

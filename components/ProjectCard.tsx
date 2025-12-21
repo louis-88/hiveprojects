@@ -27,6 +27,9 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, layout = 'list', isF
     }
   };
 
+  // Fallback logic: Use logo if thumbnail is missing
+  const cardThumbnail = project.thumbnail || project.logo;
+
   if (layout === 'grid') {
     return (
       <div 
@@ -36,7 +39,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, layout = 'list', isF
         {/* Thumbnail Section */}
         <div className="w-full aspect-video flex-shrink-0 bg-slate-100 dark:bg-slate-800 relative overflow-hidden shadow-inner">
           <img 
-            src={project.thumbnail} 
+            src={cardThumbnail} 
             alt={project.name}
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
             onError={(e) => {
@@ -132,7 +135,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, layout = 'list', isF
         {/* Thumbnail - Enhanced to 16:9 */}
         <div className="w-full sm:w-64 aspect-video flex-shrink-0 bg-slate-100 dark:bg-slate-800 rounded-xl overflow-hidden relative border border-slate-50 dark:border-slate-700 shadow-inner">
           <img 
-            src={project.thumbnail} 
+            src={cardThumbnail} 
             alt={project.name}
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
             onError={(e) => {
