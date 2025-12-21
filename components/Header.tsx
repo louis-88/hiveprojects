@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Search, Plus, Heart, Terminal } from 'lucide-react';
+import { Search, Plus, Heart, Terminal, Sparkles } from 'lucide-react';
 import { ViewType } from '../types';
 
 interface HeaderProps {
@@ -8,9 +8,10 @@ interface HeaderProps {
   setView: (view: ViewType) => void;
   currentView: ViewType;
   favoritesCount: number;
+  onLucky: () => void;
 }
 
-const Header: React.FC<HeaderProps> = ({ onSearch, setView, currentView, favoritesCount }) => {
+const Header: React.FC<HeaderProps> = ({ onSearch, setView, currentView, favoritesCount, onLucky }) => {
   return (
     <header className="sticky top-0 z-50 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 transition-colors">
       <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between gap-4">
@@ -30,14 +31,21 @@ const Header: React.FC<HeaderProps> = ({ onSearch, setView, currentView, favorit
         </div>
 
         {/* Search Bar */}
-        <div className="flex-1 max-w-md relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+        <div className="flex-1 max-w-md relative group/search">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within/search:text-hive transition-colors" />
           <input
             type="text"
             placeholder="Search for projects..."
-            className="w-full pl-10 pr-4 py-2 bg-slate-100 dark:bg-slate-800 border-none rounded-lg focus:outline-none focus:ring-2 focus:ring-hive/50 dark:text-white transition-all placeholder-slate-500"
+            className="w-full pl-10 pr-12 py-2 bg-slate-100 dark:bg-slate-800 border-none rounded-lg focus:outline-none focus:ring-2 focus:ring-hive/50 dark:text-white transition-all placeholder-slate-500"
             onChange={(e) => onSearch(e.target.value)}
           />
+          <button
+            onClick={onLucky}
+            title="I'm feeling lucky"
+            className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 text-slate-400 hover:text-hive hover:bg-white dark:hover:bg-slate-700 rounded-md transition-all"
+          >
+            <Sparkles className="w-4 h-4" />
+          </button>
         </div>
 
         {/* Navigation */}

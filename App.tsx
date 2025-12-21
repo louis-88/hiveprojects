@@ -190,6 +190,13 @@ const App: React.FC = () => {
     window.scrollTo(0, 0);
   };
 
+  const handleFeelLucky = () => {
+    if (projects.length === 0) return;
+    const randomIndex = Math.floor(Math.random() * projects.length);
+    const randomProject = projects[randomIndex];
+    handleProjectClick(randomProject.id);
+  };
+
   const handleRequestChanges = (project: Project) => {
     setFormName(project.name);
     setFormDesc(project.description);
@@ -709,10 +716,10 @@ const App: React.FC = () => {
             </div>
             <div>
               <h1 className="text-4xl font-black text-slate-900 dark:text-white tracking-tight">{selectedProject.name}</h1>
-              <div className="flex flex-wrap items-center gap-4 mt-2">
-                <p className="text-hive font-bold flex items-center gap-2"><LayoutGrid className="w-4 h-4" /> {selectedProject.category}</p>
+              <div className="flex flex-col gap-1 mt-2">
+                <p className="text-hive font-bold flex items-center gap-2 text-sm"><LayoutGrid className="w-4 h-4" /> {selectedProject.category}</p>
                 {selectedProject.lastEdited && (
-                  <p className="text-slate-400 text-[10px] font-bold uppercase tracking-[0.2em] flex items-center gap-1.5 bg-slate-100 dark:bg-slate-800 px-3 py-1 rounded-full">
+                  <p className="text-slate-400 dark:text-slate-500 text-[10px] font-medium uppercase tracking-[0.1em] flex items-center gap-1.5 opacity-80">
                     <Calendar className="w-3 h-3" /> Last Entry Update: {selectedProject.lastEdited}
                   </p>
                 )}
@@ -981,7 +988,13 @@ const App: React.FC = () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-slate-50 dark:bg-slate-950 transition-colors">
-      <Header onSearch={setSearchQuery} setView={setCurrentView} currentView={currentView} favoritesCount={favorites.length} />
+      <Header 
+        onSearch={setSearchQuery} 
+        setView={setCurrentView} 
+        currentView={currentView} 
+        favoritesCount={favorites.length} 
+        onLucky={handleFeelLucky}
+      />
       <div className="flex-1 max-w-7xl mx-auto px-4 w-full">
         {currentView === 'home' && renderHome()}
         {currentView === 'categories' && renderCategories()}

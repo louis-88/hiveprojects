@@ -168,15 +168,15 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, layout = 'list', isF
                 )}
               </h3>
               <div className="flex flex-wrap items-center gap-2 mt-1">
-                <span className="text-[10px] font-bold uppercase tracking-wider text-hive bg-hive/5 px-2 py-0.5 rounded border border-hive/10">
-                  {project.category}
-                </span>
                 {project.lastEdited && (
-                  <span className="flex items-center gap-1 text-[9px] font-bold text-slate-400 uppercase tracking-tight">
-                    <Calendar className="w-3 h-3" />
+                  <span className="flex items-center gap-1 text-[8px] font-medium text-slate-400 dark:text-slate-500 uppercase tracking-tight">
+                    <Calendar className="w-2.5 h-2.5" />
                     Updated: {project.lastEdited}
                   </span>
                 )}
+                <span className="text-[10px] font-bold uppercase tracking-wider text-hive bg-hive/5 px-2 py-0.5 rounded border border-hive/10">
+                  {project.category}
+                </span>
               </div>
             </div>
             
