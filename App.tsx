@@ -324,7 +324,7 @@ const App: React.FC = () => {
 
   const renderHome = () => (
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 py-8">
-      <aside className="lg:col-span-3 order-2 lg:order-1">
+      <aside className="lg:col-span-3 order-2 lg:order-1 lg:sticky lg:top-24 h-fit">
         <CategorySidebar 
           categories={categories} 
           activeCategory={activeCategory} 
@@ -520,7 +520,7 @@ const App: React.FC = () => {
           {/* Team Members */}
           <section className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-3xl p-8 shadow-sm">
             <div className="flex items-center justify-between mb-6">
-              <h3 className="text-xs font-black uppercase tracking-[0.2em] text-hive flex items-center gap-2">
+              <h3 className="text-xs font-black uppercase tracking-[0.2em] text-hive mb-6 flex items-center gap-2">
                 <Users className="w-4 h-4" /> Team Members (Blockchain Sync)
               </h3>
               <button onClick={() => addTeamMember('team')} className="p-2 bg-hive/10 text-hive rounded-lg hover:bg-hive hover:text-white transition-all"><Plus className="w-4 h-4" /></button>

@@ -4,7 +4,7 @@ export const worldmappin: Project = {
   "id": "worldmappin",
   "name": "Worldmappin",
   "description": "Worldmappin is a world map where bloggers on Hive can pin their posts.",
-  "category": "Hive Interfaces (Frontends)",
+  "category": "Specialized Hive Interfaces",
   "thumbnail": "https://files.peakd.com/file/peakd-hive/louis88/242sG9FZHz6XBESjBnXA76xUkucQGSprS21xBuBLbLivtaxtQ4QVmZQYkz3jw4NNG2vun.jpg",
   "websiteUrl": "https://worldmappin.com",
   "githubUrl": "https://github.com/WorldMapPin",
@@ -89,4 +89,4 @@ export const worldmappin: Project = {
     }
   ],
   "lastEdited": "Dec 21, 2025"
-}
+};
