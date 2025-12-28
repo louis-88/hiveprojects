@@ -1,4 +1,5 @@
 import { Project } from '../types';
+import { hivehubdev } from './hivehubdev';
 import { actifit } from './actifit';
 import { apeminingclub } from './apeminingclub';
 import { arcadecolony } from './arcadecolony';
@@ -84,6 +85,7 @@ import { xt } from './xt';
 
 export const projects: Project[] = [
   actifit,
+  hivehubdev,
   apeminingclub,
   arcadecolony,
   astral_wars,

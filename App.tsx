@@ -5,7 +5,7 @@ import CategorySidebar from './components/CategorySidebar';
 import ProjectCard from './components/ProjectCard';
 import { projects, categories } from './data';
 import { ViewType, Project, TeamMember, TimelineEvent } from './types';
-import { Bell, ChevronRight, ChevronLeft, X, HelpCircle, Send, Search, Sparkles, LayoutGrid, LayoutList, Heart, Trash2, ArrowLeft, ExternalLink, Info, MessageCircle, Code, Users, Calendar, Link as LinkIcon, Sun, Moon, Terminal, User, Plus, Copy, Check, Globe, Github, RefreshCw, Loader2, Edit3, Image as ImageIcon, Camera, HeartHandshake, Maximize2 } from 'lucide-react';
+import { Bell, ChevronRight, ChevronLeft, X, HelpCircle, Send, Search, Sparkles, LayoutGrid, LayoutList, Heart, Trash2, ArrowLeft, ExternalLink, Info, MessageCircle, Code, Users, Calendar, Link as LinkIcon, Sun, Moon, Terminal, User, Plus, Copy, Check, Globe, Github, RefreshCw, Loader2, Edit3, Image as ImageIcon, Camera, HeartHandshake, Maximize2, FileCode, GitPullRequest, Info as InfoIcon, Settings, Layers, AlignLeft, Eye, Braces } from 'lucide-react';
 
 const App: React.FC = () => {
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
@@ -17,6 +17,7 @@ const App: React.FC = () => {
   const [favorites, setFavorites] = useState<string[]>([]);
   const [activeGalleryIndex, setActiveGalleryIndex] = useState(0);
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
+  const [activeFieldDetail, setActiveFieldDetail] = useState<string | null>(null);
   const [theme, setTheme] = useState<'light' | 'dark'>(() => {
     if (typeof window !== 'undefined') {
       const saved = localStorage.getItem('theme');
@@ -469,16 +470,39 @@ const App: React.FC = () => {
                   {categories.map(c => <option key={c.id} value={c.name}>{c.name}</option>)}
                 </select>
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="space-y-2">
+              
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                <div className="space-y-3">
                   <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Main Thumbnail (16:9)</label>
                   <input value={formThumb} onChange={e => setFormThumb(e.target.value)} type="url" placeholder="https://..." className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border-none rounded-xl focus:ring-2 focus:ring-hive/50 dark:text-white outline-none" />
+                  <div className="aspect-video bg-slate-50 dark:bg-slate-800 rounded-xl overflow-hidden border border-slate-100 dark:border-slate-700 flex items-center justify-center relative group">
+                    {formThumb ? (
+                      <img src={formThumb} alt="Thumbnail Preview" className="w-full h-full object-cover" onError={(e) => (e.currentTarget.style.display = 'none')} />
+                    ) : (
+                      <ImageIcon className="w-8 h-8 text-slate-300" />
+                    )}
+                    <div className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <span className="text-[10px] font-bold text-white uppercase tracking-widest">Thumbnail Preview</span>
+                    </div>
+                  </div>
                 </div>
-                <div className="space-y-2">
-                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Project Logo (Any aspect ratio)</label>
+
+                <div className="space-y-3">
+                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Project Logo</label>
                   <input value={formLogo} onChange={e => setFormLogo(e.target.value)} type="url" placeholder="https://..." className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border-none rounded-xl focus:ring-2 focus:ring-hive/50 dark:text-white outline-none" />
+                  <div className="aspect-video bg-slate-50 dark:bg-slate-800 rounded-xl overflow-hidden border border-slate-100 dark:border-slate-700 flex items-center justify-center relative group">
+                    {formLogo ? (
+                      <img src={formLogo} alt="Logo Preview" className="h-16 w-auto object-contain" onError={(e) => (e.currentTarget.style.display = 'none')} />
+                    ) : (
+                      <Maximize2 className="w-8 h-8 text-slate-300" />
+                    )}
+                    <div className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <span className="text-[10px] font-bold text-white uppercase tracking-widest">Logo Preview</span>
+                    </div>
+                  </div>
                 </div>
               </div>
+
               <div className="space-y-2">
                 <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Short Pitch</label>
                 <textarea value={formDesc} onChange={e => setFormDesc(e.target.value)} rows={3} placeholder="A brief description of what makes this project awesome..." className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border-none rounded-xl focus:ring-2 focus:ring-hive/50 dark:text-white outline-none resize-none"></textarea>
@@ -581,41 +605,46 @@ const App: React.FC = () => {
               </h3>
               <button onClick={() => addTeamMember('team')} className="p-2 bg-hive/10 text-hive rounded-lg hover:bg-hive hover:text-white transition-all"><Plus className="w-4 h-4" /></button>
             </div>
-            <div className="space-y-4">
+            <div className="space-y-6">
               {formTeam.map((member, idx) => (
-                <div key={idx} className="p-4 bg-slate-50 dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 relative group">
-                  <button onClick={() => removeMember('team', idx)} className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity z-20"><Trash2 className="w-3 h-3" /></button>
-                  <div className="flex gap-4 items-start">
-                    <div className="flex-1 space-y-3">
-                      <div className="grid grid-cols-2 gap-3">
-                        <div className="relative">
-                          <input 
-                            value={member.name} 
-                            onChange={e => updateMember('team', idx, 'name', e.target.value)} 
-                            type="text" 
-                            placeholder="Hive Username" 
-                            className="w-full px-3 py-2 bg-white dark:bg-slate-900 border-none rounded-lg text-xs font-bold outline-none" 
-                          />
-                          <button 
-                            onClick={() => syncHiveUser('team', idx)}
-                            className={`absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-hive transition-colors ${syncingIndex?.type === 'team' && syncingIndex?.index === idx ? 'animate-spin' : ''}`}
-                            title="Sync Profile from Hive Blockchain"
-                            disabled={syncingIndex !== null}
-                          >
-                            {syncingIndex?.type === 'team' && syncingIndex?.index === idx ? <Loader2 className="w-3.5 h-3.5" /> : <RefreshCw className="w-3.5 h-3.5" />}
-                          </button>
+                <div key={idx} className="p-5 bg-slate-50 dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 relative group">
+                  <button onClick={() => removeMember('team', idx)} className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity z-20 shadow-md"><Trash2 className="w-3 h-3" /></button>
+                  <div className="flex gap-5 items-start">
+                    <div className="w-14 h-14 rounded-full border-2 border-white dark:border-slate-700 overflow-hidden flex-shrink-0 bg-slate-100 shadow-sm mt-0.5">
+                      <img src={member.avatar || `https://images.hive.blog/u/${member.name.toLowerCase() || 'hive'}/avatar`} alt="Profile" className="w-full h-full object-cover" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex flex-col sm:flex-row gap-4">
+                        <div className="flex-1 space-y-1.5">
+                          <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest pl-1">Hive Username</label>
+                          <div className="flex gap-2">
+                            <input 
+                              value={member.name} 
+                              onChange={e => updateMember('team', idx, 'name', e.target.value)} 
+                              type="text" 
+                              placeholder="@username" 
+                              className="flex-1 px-3 py-2 bg-white dark:bg-slate-900 border-none rounded-lg text-xs font-bold outline-none" 
+                            />
+                            <button 
+                              onClick={() => syncHiveUser('team', idx)}
+                              className={`flex items-center gap-2 px-4 py-2 bg-hive text-white rounded-lg text-[10px] font-black uppercase tracking-tighter hover:bg-red-700 transition-all shadow-sm disabled:opacity-50 shrink-0`}
+                              disabled={syncingIndex !== null}
+                            >
+                              {syncingIndex?.type === 'team' && syncingIndex?.index === idx ? <Loader2 className="w-3 h-3 animate-spin" /> : <RefreshCw className="w-3 h-3" />}
+                              Sync
+                            </button>
+                          </div>
                         </div>
-                        <input value={member.role} onChange={e => updateMember('team', idx, 'role', e.target.value)} type="text" placeholder="Role (e.g. Lead Dev)" className="px-3 py-2 bg-white dark:bg-slate-900 border-none rounded-lg text-xs outline-none" />
+                        <div className="flex-1 space-y-1.5">
+                          <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest pl-1">Contribution / Role</label>
+                          <input value={member.role} onChange={e => updateMember('team', idx, 'role', e.target.value)} type="text" placeholder="e.g. Lead Dev" className="w-full px-3 py-2 bg-white dark:bg-slate-900 border-none rounded-lg text-xs outline-none" />
+                        </div>
                       </div>
                     </div>
-                    {member.avatar && (
-                      <div className="w-14 h-14 rounded-full border-2 border-slate-200 dark:border-slate-700 overflow-hidden flex-shrink-0 bg-white shadow-sm">
-                        <img src={member.avatar} alt="Preview" className="w-full h-full object-cover" onError={(e) => { e.currentTarget.src = `https://images.hive.blog/u/${member.name.toLowerCase()}/avatar`; }} />
-                      </div>
-                    )}
                   </div>
                 </div>
               ))}
+              {formTeam.length === 0 && <p className="text-xs text-slate-400 text-center py-4 italic">No team members added.</p>}
             </div>
           </section>
 
@@ -627,41 +656,46 @@ const App: React.FC = () => {
               </h3>
               <button onClick={() => addTeamMember('supporter')} className="p-2 bg-hive/10 text-hive rounded-lg hover:bg-hive hover:text-white transition-all"><Plus className="w-4 h-4" /></button>
             </div>
-            <div className="space-y-4">
+            <div className="space-y-6">
               {formSupporters.map((member, idx) => (
-                <div key={idx} className="p-4 bg-slate-50 dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 relative group">
-                  <button onClick={() => removeMember('supporter', idx)} className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity z-20"><Trash2 className="w-3 h-3" /></button>
-                  <div className="flex gap-4 items-start">
-                    <div className="flex-1 space-y-3">
-                      <div className="grid grid-cols-2 gap-3">
-                        <div className="relative">
-                          <input 
-                            value={member.name} 
-                            onChange={e => updateMember('supporter', idx, 'name', e.target.value)} 
-                            type="text" 
-                            placeholder="Hive Username" 
-                            className="w-full px-3 py-2 bg-white dark:bg-slate-900 border-none rounded-lg text-xs font-bold outline-none" 
-                          />
-                          <button 
-                            onClick={() => syncHiveUser('supporter', idx)}
-                            className={`absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-hive transition-colors ${syncingIndex?.type === 'supporter' && syncingIndex?.index === idx ? 'animate-spin' : ''}`}
-                            title="Sync Profile from Hive Blockchain"
-                            disabled={syncingIndex !== null}
-                          >
-                            {syncingIndex?.type === 'supporter' && syncingIndex?.index === idx ? <Loader2 className="w-3.5 h-3.5" /> : <RefreshCw className="w-3.5 h-3.5" />}
-                          </button>
+                <div key={idx} className="p-5 bg-slate-50 dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 relative group">
+                  <button onClick={() => removeMember('supporter', idx)} className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity z-20 shadow-md"><Trash2 className="w-3 h-3" /></button>
+                  <div className="flex gap-5 items-start">
+                    <div className="w-14 h-14 rounded-full border-2 border-white dark:border-slate-700 overflow-hidden flex-shrink-0 bg-slate-100 shadow-sm mt-0.5">
+                      <img src={member.avatar || `https://images.hive.blog/u/${member.name.toLowerCase() || 'hive'}/avatar`} alt="Profile" className="w-full h-full object-cover" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex flex-col sm:flex-row gap-4">
+                        <div className="flex-1 space-y-1.5">
+                          <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest pl-1">Hive Username</label>
+                          <div className="flex gap-2">
+                            <input 
+                              value={member.name} 
+                              onChange={e => updateMember('supporter', idx, 'name', e.target.value)} 
+                              type="text" 
+                              placeholder="@username" 
+                              className="flex-1 px-3 py-2 bg-white dark:bg-slate-900 border-none rounded-lg text-xs font-bold outline-none" 
+                            />
+                            <button 
+                              onClick={() => syncHiveUser('supporter', idx)}
+                              className={`flex items-center gap-2 px-4 py-2 bg-hive text-white rounded-lg text-[10px] font-black uppercase tracking-tighter hover:bg-red-700 transition-all shadow-sm disabled:opacity-50 shrink-0`}
+                              disabled={syncingIndex !== null}
+                            >
+                              {syncingIndex?.type === 'supporter' && syncingIndex?.index === idx ? <Loader2 className="w-3 h-3 animate-spin" /> : <RefreshCw className="w-3 h-3" />}
+                              Sync
+                            </button>
+                          </div>
                         </div>
-                        <input value={member.role} onChange={e => updateMember('supporter', idx, 'role', e.target.value)} type="text" placeholder="Contribution (e.g. Translation)" className="px-3 py-2 bg-white dark:bg-slate-900 border-none rounded-lg text-xs outline-none" />
+                        <div className="flex-1 space-y-1.5">
+                          <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest pl-1">Contribution</label>
+                          <input value={member.role} onChange={e => updateMember('supporter', idx, 'role', e.target.value)} type="text" placeholder="e.g. Translation" className="w-full px-3 py-2 bg-white dark:bg-slate-900 border-none rounded-lg text-xs outline-none" />
+                        </div>
                       </div>
                     </div>
-                    {member.avatar && (
-                      <div className="w-14 h-14 rounded-full border-2 border-slate-200 dark:border-slate-700 overflow-hidden flex-shrink-0 bg-white shadow-sm">
-                        <img src={member.avatar} alt="Preview" className="w-full h-full object-cover" onError={(e) => { e.currentTarget.src = `https://images.hive.blog/u/${member.name.toLowerCase()}/avatar`; }} />
-                      </div>
-                    )}
                   </div>
                 </div>
               ))}
+              {formSupporters.length === 0 && <p className="text-xs text-slate-400 text-center py-4 italic">No supporters added.</p>}
             </div>
           </section>
 
@@ -674,16 +708,34 @@ const App: React.FC = () => {
             </div>
             <div className="space-y-4">
               {formTimeline.map((event, idx) => (
-                <div key={idx} className="p-4 bg-slate-50 dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 relative group">
-                   <button onClick={() => removeTimelineEvent(idx)} className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"><Trash2 className="w-3 h-3" /></button>
-                   <div className="grid grid-cols-2 gap-3 mb-3">
-                    <input value={event.date} onChange={e => updateTimelineEvent(idx, 'date', e.target.value)} type="text" placeholder="Date (e.g. Oct 2023)" className="px-3 py-2 bg-white dark:bg-slate-900 border-none rounded-lg text-xs font-bold outline-none" />
-                    <input value={event.title} onChange={e => updateTimelineEvent(idx, 'title', e.target.value)} type="text" placeholder="Event Title" className="px-3 py-2 bg-white dark:bg-slate-900 border-none rounded-lg text-xs outline-none" />
+                <div key={idx} className="p-5 bg-slate-50 dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 relative group">
+                   <button onClick={() => removeTimelineEvent(idx)} className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-md z-20"><Trash2 className="w-3 h-3" /></button>
+                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+                    <div className="flex flex-col gap-1.5">
+                      <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest pl-1">Milestone Date</label>
+                      <input 
+                        value={event.date} 
+                        onChange={e => updateTimelineEvent(idx, 'date', e.target.value)} 
+                        type="date" 
+                        className="px-3 py-2 bg-white dark:bg-slate-900 border-none rounded-lg text-xs font-bold outline-none w-full" 
+                      />
+                    </div>
+                    <div className="flex flex-col gap-1.5">
+                      <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest pl-1">Event Title</label>
+                      <input value={event.title} onChange={e => updateTimelineEvent(idx, 'title', e.target.value)} type="text" placeholder="e.g. Beta Launch" className="px-3 py-2 bg-white dark:bg-slate-900 border-none rounded-lg text-xs font-bold outline-none" />
+                    </div>
                   </div>
-                  <textarea value={event.description} onChange={e => updateTimelineEvent(idx, 'description', e.target.value)} rows={2} placeholder="Event detail..." className="w-full px-3 py-2 bg-white dark:bg-slate-900 border-none rounded-lg text-xs outline-none mb-3 resize-none" />
-                  <input value={event.linkUrl} onChange={e => updateTimelineEvent(idx, 'linkUrl', e.target.value)} type="url" placeholder="Update Link URL" className="w-full px-3 py-2 bg-white dark:bg-slate-900 border-none rounded-lg text-[10px] outline-none" />
+                  <div className="flex flex-col gap-1.5 mb-4">
+                    <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest pl-1">Event Description</label>
+                    <textarea value={event.description} onChange={e => updateTimelineEvent(idx, 'description', e.target.value)} rows={2} placeholder="Briefly describe this milestone..." className="w-full px-3 py-2 bg-white dark:bg-slate-900 border-none rounded-lg text-xs outline-none resize-none" />
+                  </div>
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest pl-1">Post Link (Optional)</label>
+                    <input value={event.linkUrl} onChange={e => updateTimelineEvent(idx, 'linkUrl', e.target.value)} type="url" placeholder="https://peakd.com/..." className="w-full px-3 py-2 bg-white dark:bg-slate-900 border-none rounded-lg text-[10px] outline-none" />
+                  </div>
                 </div>
               ))}
+              {formTimeline.length === 0 && <p className="text-xs text-slate-400 text-center py-4 italic">No timeline events added.</p>}
             </div>
           </section>
         </div>
@@ -712,7 +764,6 @@ const App: React.FC = () => {
   const renderProjectDetail = () => {
     if (!selectedProject) return null;
     const isFav = favorites.includes(selectedProject.id);
-    // Use logo if available, fallback to thumbnail
     const displayLogo = selectedProject.logo || selectedProject.thumbnail;
 
     return (
@@ -752,7 +803,6 @@ const App: React.FC = () => {
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 mb-16">
           <div className="lg:col-span-3 space-y-10">
-            {/* Optimized Logo repositioned to sidebar above Project Website */}
             <div className="h-40 w-full bg-white dark:bg-slate-800 rounded-3xl shadow-xl shadow-slate-200/50 dark:shadow-none border border-slate-100 dark:border-slate-700 flex items-center justify-center overflow-hidden transition-all group/logo p-8">
               <img 
                 src={displayLogo} 
@@ -891,7 +941,6 @@ const App: React.FC = () => {
           </div>
         )}
 
-        {/* Lightbox Modal */}
         {lightboxIndex !== null && (
           <div 
             className="fixed inset-0 z-[100] bg-slate-950/98 backdrop-blur-2xl flex flex-col items-center justify-center animate-in fade-in zoom-in duration-300 p-4 md:p-12"
@@ -1020,6 +1069,307 @@ const App: React.FC = () => {
     </div>
   );
 
+  const renderDeveloperInfo = () => {
+    const codeExample = `import { Project } from '../types';
+
+export const myNewProject: Project = {
+  id: 'my-cool-app',
+  name: 'My Cool Hive App',
+  description: 'A revolutionary application that solves world hunger using Hive tokens.',
+  category: 'Specialized Hive Interfaces',
+  thumbnail: 'https://images.hive.blog/DQmExampleThumbnailUrl...',
+  logo: 'https://images.hive.blog/DQmExampleLogoUrl...',
+  gallery: [
+    'https://images.hive.blog/DQmGallery1...',
+    'https://images.hive.blog/DQmGallery2...'
+  ],
+  websiteUrl: 'https://mycoolapp.com',
+  githubUrl: 'https://github.com/my-cool-app',
+  announcementUrl: 'https://peakd.com/hive/@user/announcement',
+  contactUrl: 'https://discord.gg/invite-code',
+  status: 'Live/Released',
+  isOpenSource: true,
+  lastEdited: 'Dec 22, 2025',
+  team: [
+    { 
+      name: 'yourusername', 
+      role: 'Lead Developer', 
+      avatar: 'https://images.hive.blog/u/yourusername/avatar' 
+    }
+  ],
+  supporters: [
+    {
+      name: 'hiveprojects',
+      role: 'Ecosystem Partner',
+      avatar: 'https://images.hive.blog/u/hiveprojects/avatar'
+    }
+  ],
+  timeline: [
+    { 
+      date: 'Jan 2024', 
+      title: 'Initial Alpha', 
+      description: 'First public testing phase started.',
+      linkUrl: 'https://...' 
+    }
+  ]
+};`;
+
+    const projectFields = [
+      { name: 'id', icon: <Settings className="w-4 h-4" />, type: 'string', desc: 'Unique kebab-case identifier (e.g. "peakd")' },
+      { name: 'name', icon: <AlignLeft className="w-4 h-4" />, type: 'string', desc: 'The display name of your project' },
+      { name: 'description', icon: <AlignLeft className="w-4 h-4" />, type: 'string', desc: 'Comprehensive pitch/overview of the app' },
+      { name: 'category', icon: <Layers className="w-4 h-4" />, type: 'enum', desc: 'Must match one of the predefined categories (Click for list)' },
+      { name: 'thumbnail', icon: <ImageIcon className="w-4 h-4" />, type: 'url', desc: 'Primary preview image (Ideally 16:9 ratio)' },
+      { name: 'logo', icon: <Maximize2 className="w-4 h-4" />, type: 'url', desc: 'Square or transparent branding logo (Optional)' },
+      { name: 'gallery', icon: <Camera className="w-4 h-4" />, type: 'string[]', desc: 'Array of additional screenshot URLs (Max 5)' },
+      { name: 'websiteUrl', icon: <Globe className="w-4 h-4" />, type: 'url', desc: 'Primary landing page or dApp URL' },
+      { name: 'githubUrl', icon: <Github className="w-4 h-4" />, type: 'url', desc: 'Repository link for open source projects' },
+      { name: 'announcementUrl', icon: <Bell className="w-4 h-4" />, type: 'url', desc: 'Link to a Hive post introducing the project' },
+      { name: 'contactUrl', icon: <MessageCircle className="w-4 h-4" />, type: 'url', desc: 'Discord, Telegram or support link' },
+      { name: 'status', icon: <Eye className="w-4 h-4" />, type: 'enum', desc: 'Valid: Live/Released, Alpha, Beta, Development' },
+      { name: 'isOpenSource', icon: <Code className="w-4 h-4" />, type: 'boolean', desc: 'True if source code is publicly accessible' },
+      { name: 'lastEdited', icon: <Calendar className="w-4 h-4" />, type: 'string', desc: 'Date of last information update' },
+      { name: 'team', icon: <Users className="w-4 h-4" />, type: 'TeamMember[]', desc: 'Core contributors (Click to see object structure)' },
+      { name: 'supporters', icon: <HeartHandshake className="w-4 h-4" />, type: 'TeamMember[]', desc: 'Partners or community helpers' },
+      { name: 'timeline', icon: <LayoutList className="w-4 h-4" />, type: 'TimelineEvent[]', desc: 'Major project milestones (Click for structure)' },
+    ];
+
+    const getFieldDetailContent = (fieldName: string) => {
+      switch (fieldName) {
+        case 'category':
+          return (
+            <div className="space-y-4">
+              <p className="text-sm font-bold text-slate-900 dark:text-white">Valid Categories:</p>
+              <div className="grid grid-cols-1 gap-2">
+                {categories.map(c => (
+                  <div key={c.id} className="text-[11px] p-2 bg-slate-50 dark:bg-slate-800 rounded-lg border border-slate-100 dark:border-slate-700">
+                    <div className="font-bold text-hive">{c.name}</div>
+                    <div className="text-slate-500 dark:text-slate-400 italic mt-0.5 line-clamp-1">{c.description}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          );
+        case 'status':
+          return (
+            <div className="space-y-4">
+              <p className="text-sm font-bold text-slate-900 dark:text-white">Possible Status Values:</p>
+              <div className="flex flex-col gap-2">
+                {['Live/Released', 'Alpha', 'Beta', 'Development'].map(s => (
+                   <div key={s} className="px-3 py-2 bg-slate-50 dark:bg-slate-800 rounded-lg text-xs font-bold border border-slate-100 dark:border-slate-700 text-slate-700 dark:text-slate-300">{s}</div>
+                ))}
+              </div>
+            </div>
+          );
+        case 'team':
+        case 'supporters':
+          return (
+            <div className="space-y-4">
+              <p className="text-sm font-bold text-slate-900 dark:text-white">TeamMember structure:</p>
+              <div className="p-4 bg-slate-900 rounded-xl font-mono text-[11px] text-blue-300">
+                {`{
+  name: string;   // Hive username (lowercase)
+  role: string;   // Contributor role
+  avatar: string; // URL to avatar image
+}`}
+              </div>
+              <p className="text-[10px] text-slate-500 dark:text-slate-400 italic">Hint: You can use https://images.hive.blog/u/username/avatar as avatar URL.</p>
+            </div>
+          );
+        case 'timeline':
+          return (
+            <div className="space-y-4">
+              <p className="text-sm font-bold text-slate-900 dark:text-white">TimelineEvent structure:</p>
+              <div className="p-4 bg-slate-900 rounded-xl font-mono text-[11px] text-blue-300">
+                {`{
+  date: string;        // "Jan 2024" format
+  title: string;       // Short event name
+  description: string; // Detail description
+  linkUrl?: string;    // Optional link to post
+}`}
+              </div>
+            </div>
+          );
+        case 'id':
+          return (
+            <div className="space-y-4">
+              <p className="text-sm font-bold text-slate-900 dark:text-white">Identifier Rules:</p>
+              <ul className="text-xs space-y-2 text-slate-600 dark:text-slate-400 list-disc pl-4">
+                <li>Must be lowercase</li>
+                <li>No spaces (use dashes instead)</li>
+                <li>URL-friendly characters only (a-z, 0-9, -)</li>
+                <li>Example: "peakd", "splinterlands-app"</li>
+              </ul>
+            </div>
+          );
+        default:
+          return <p className="text-sm text-slate-500">No additional technical documentation available for this field.</p>;
+      }
+    };
+
+    return (
+      <div className="py-12 max-w-6xl mx-auto">
+        <div className="flex items-center gap-4 mb-10">
+          <div className="p-4 bg-slate-100 dark:bg-slate-800 rounded-2xl">
+            <FileCode className="w-10 h-10 text-hive" />
+          </div>
+          <div>
+            <h1 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight">Engineering Guide</h1>
+            <p className="text-slate-500 dark:text-slate-400">How to contribute or edit project entries</p>
+          </div>
+        </div>
+
+        {/* Modal for field details */}
+        {activeFieldDetail && (
+           <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
+              <div className="absolute inset-0 bg-slate-950/40 backdrop-blur-sm" onClick={() => setActiveFieldDetail(null)} />
+              <div className="relative w-full max-w-md bg-white dark:bg-slate-900 rounded-3xl shadow-2xl border border-slate-100 dark:border-slate-800 p-6 animate-in fade-in zoom-in duration-200">
+                <div className="flex items-center justify-between mb-6">
+                   <div className="flex items-center gap-3">
+                      <div className="p-2 bg-hive/10 text-hive rounded-xl">
+                        <Braces className="w-5 h-5" />
+                      </div>
+                      <h3 className="font-black text-lg text-slate-900 dark:text-white uppercase tracking-tight">Field: <span className="text-hive italic">{activeFieldDetail}</span></h3>
+                   </div>
+                   <button onClick={() => setActiveFieldDetail(null)} className="p-2 text-slate-400 hover:text-hive transition-colors"><X className="w-6 h-6" /></button>
+                </div>
+                <div className="overflow-y-auto max-h-[60vh] pr-1 scrollbar-thin scrollbar-thumb-slate-200">
+                   {getFieldDetailContent(activeFieldDetail)}
+                </div>
+                <div className="mt-8 pt-4 border-t border-slate-100 dark:border-slate-800 flex justify-end">
+                   <button onClick={() => setActiveFieldDetail(null)} className="px-6 py-2 bg-slate-900 dark:bg-white dark:text-slate-900 text-white font-black text-xs rounded-xl hover:scale-105 transition-transform">Dismiss</button>
+                </div>
+              </div>
+           </div>
+        )}
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
+          <div className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 p-6 rounded-3xl">
+            <div className="w-10 h-10 bg-hive/10 text-hive rounded-xl flex items-center justify-center mb-4 font-black">1</div>
+            <h3 className="font-bold text-slate-900 dark:text-white mb-2">Use the Generator</h3>
+            <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
+              Head over to the <button onClick={() => setCurrentView('add-project')} className="text-hive hover:underline font-bold">Submit App</button> page. Fill in your project details and the tool will automatically generate the correct JSON/TypeScript structure for you.
+            </p>
+          </div>
+          <div className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 p-6 rounded-3xl">
+            <div className="w-10 h-10 bg-hive/10 text-hive rounded-xl flex items-center justify-center mb-4 font-black">2</div>
+            <h3 className="font-bold text-slate-900 dark:text-white mb-2">Create Data File</h3>
+            <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
+              Fork the repository. Inside the <code className="bg-slate-100 dark:bg-slate-800 px-1 rounded text-hive">projects/</code> directory, create a new <code className="bg-slate-100 dark:bg-slate-800 px-1 rounded text-hive">.ts</code> file (e.g., <code className="italic">my-app.ts</code>) and paste the generated code.
+            </p>
+          </div>
+          <div className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 p-6 rounded-3xl">
+            <div className="w-10 h-10 bg-hive/10 text-hive rounded-xl flex items-center justify-center mb-4 font-black">3</div>
+            <h3 className="font-bold text-slate-900 dark:text-white mb-2">Open PR</h3>
+            <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
+              Register your project in <code className="bg-slate-100 dark:bg-slate-800 px-1 rounded text-hive">projects/index.ts</code> by importing and adding it to the array. Push your changes and open a Pull Request on GitHub.
+            </p>
+          </div>
+        </div>
+
+        <section className="space-y-6">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-2xl font-black text-slate-900 dark:text-white flex items-center gap-2">
+              <Terminal className="w-6 h-6 text-hive" /> Implementation Details
+            </h2>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
+            <div className="lg:col-span-4 space-y-4">
+              <h3 className="text-xs font-black uppercase tracking-widest text-slate-400 flex items-center gap-2 mb-4">
+                <InfoIcon className="w-3.5 h-3.5" /> Field Reference (Click to inspect)
+              </h3>
+              <div className="space-y-3">
+                {projectFields.map((field) => (
+                  <button 
+                    key={field.name} 
+                    onClick={() => setActiveFieldDetail(field.name)}
+                    className="w-full text-left group/field p-3 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-2xl hover:border-hive hover:shadow-md transition-all shadow-sm focus:outline-none focus:ring-2 focus:ring-hive/20"
+                  >
+                    <div className="flex items-center gap-3 mb-1">
+                      <div className="p-1.5 bg-slate-50 dark:bg-slate-800 text-slate-400 group-hover/field:text-hive rounded-lg transition-colors">
+                        {field.icon}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center justify-between">
+                          <span className="font-bold text-slate-900 dark:text-white text-sm">{field.name}</span>
+                          <span className="text-[10px] font-mono text-hive/70 font-bold px-1.5 py-0.5 bg-hive/5 rounded-md">{field.type}</span>
+                        </div>
+                      </div>
+                    </div>
+                    <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed pl-10">
+                      {field.desc}
+                    </p>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="lg:col-span-8 space-y-4">
+              <div className="flex items-center justify-between">
+                 <h3 className="text-xs font-black uppercase tracking-widest text-slate-400 flex items-center gap-2">
+                  <FileCode className="w-3.5 h-3.5" /> Entry Example
+                </h3>
+                <button 
+                  onClick={() => { navigator.clipboard.writeText(codeExample); setCopySuccess(true); setTimeout(() => setCopySuccess(false), 2000); }}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${copySuccess ? 'bg-green-500 text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200'}`}
+                >
+                  {copySuccess ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
+                  {copySuccess ? 'Copied' : 'Copy Template'}
+                </button>
+              </div>
+
+              <div className="bg-slate-900 rounded-[2.5rem] overflow-hidden shadow-2xl border border-white/5 h-full">
+                <div className="bg-slate-800 px-6 py-4 border-b border-slate-700 flex items-center justify-between">
+                  <div className="flex gap-1.5">
+                    <div className="w-3 h-3 rounded-full bg-red-500" />
+                    <div className="w-3 h-3 rounded-full bg-amber-500" />
+                    <div className="w-3 h-3 rounded-full bg-emerald-500" />
+                  </div>
+                  <span className="text-[10px] font-mono text-slate-400 uppercase tracking-widest">projects/my-cool-app.ts</span>
+                </div>
+                <div className="p-8 overflow-auto max-h-[1200px] scrollbar-thin scrollbar-thumb-white/10">
+                  <pre className="font-mono text-xs leading-relaxed text-blue-300">
+                    {codeExample}
+                  </pre>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <div className="mt-20 p-10 bg-gradient-to-br from-hive/10 to-transparent rounded-[3rem] border border-hive/10 relative overflow-hidden">
+          <div className="absolute -top-10 -right-10 w-40 h-40 bg-hive/5 rounded-full blur-3xl" />
+          <h3 className="text-xl font-black text-slate-900 dark:text-white mb-6 flex items-center gap-3">
+            <InfoIcon className="w-6 h-6 text-hive" /> Technical Requirements & Best Practices
+          </h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 text-sm text-slate-600 dark:text-slate-400">
+            <div className="space-y-4">
+              <div className="flex gap-4">
+                <div className="w-1.5 h-1.5 rounded-full bg-hive mt-2 shrink-0 shadow-[0_0_8px_rgba(227,19,55,0.6)]" />
+                <p><strong className="text-slate-900 dark:text-slate-200 block mb-1">Image Hosting</strong> We strongly recommend using the <code className="bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded text-hive">images.hive.blog</code> proxy or <code className="bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded text-hive">files.peakd.com</code> for long-term availability.</p>
+              </div>
+              <div className="flex gap-4">
+                <div className="w-1.5 h-1.5 rounded-full bg-hive mt-2 shrink-0 shadow-[0_0_8px_rgba(227,19,55,0.6)]" />
+                <p><strong className="text-slate-900 dark:text-slate-200 block mb-1">Blockchain Sync</strong> For team members, provide exactly the Hive username. The application automatically pulls the profile avatar from the chain if available.</p>
+              </div>
+            </div>
+            <div className="space-y-4">
+              <div className="flex gap-4">
+                <div className="w-1.5 h-1.5 rounded-full bg-hive mt-2 shrink-0 shadow-[0_0_8px_rgba(227,19,55,0.6)]" />
+                <p><strong className="text-slate-900 dark:text-slate-200 block mb-1">UI Consistency</strong> Thumbnails are displayed in 16:9. Logos should be high-contrast and ideally have a transparent background for dark/light mode compatibility.</p>
+              </div>
+              <div className="flex gap-4">
+                <div className="w-1.5 h-1.5 rounded-full bg-hive mt-2 shrink-0 shadow-[0_0_8px_rgba(227,19,55,0.6)]" />
+                <p><strong className="text-slate-900 dark:text-slate-200 block mb-1">Project IDs</strong> IDs must be URL-friendly (lowercase, no spaces). Changing an ID later will break direct links to your project detail view.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div className="min-h-screen flex flex-col bg-slate-50 dark:bg-slate-950 transition-colors">
       <Header 
@@ -1037,6 +1387,7 @@ const App: React.FC = () => {
         {currentView === 'favorites' && renderFavorites()}
         {currentView === 'add-project' && renderAddProject()}
         {currentView === 'project-detail' && renderProjectDetail()}
+        {currentView === 'developer-info' && renderDeveloperInfo()}
       </div>
       <footer className="bg-white dark:bg-slate-900 border-t border-slate-100 dark:border-slate-800 mt-20 py-16">
         <div className="max-w-7xl mx-auto px-4 grid grid-cols-1 md:grid-cols-3 gap-12 items-start">
@@ -1060,6 +1411,7 @@ const App: React.FC = () => {
               <ul className="space-y-2 text-sm text-slate-500 dark:text-slate-400">
                 <li><button onClick={() => setCurrentView('categories')} className="hover:text-hive transition-colors">Categories</button></li>
                 <li><button onClick={() => setCurrentView('developers')} className="hover:text-hive transition-colors">Developers</button></li>
+                <li><button onClick={() => setCurrentView('developer-info')} className="hover:text-hive transition-colors">For Developers</button></li>
                 <li><button onClick={() => setCurrentView('add-project')} className="hover:text-hive transition-colors">Submit App</button></li>
               </ul>
             </div>

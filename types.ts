@@ -39,4 +39,4 @@ export interface Category {
   description: string;
 }
 
-export type ViewType = 'home' | 'faq' | 'add-project' | 'categories' | 'favorites' | 'project-detail' | 'developers' | 'developer-detail';
+export type ViewType = 'home' | 'faq' | 'add-project' | 'categories' | 'favorites' | 'project-detail' | 'developers' | 'developer-detail' | 'developer-info';
