@@ -11,7 +11,7 @@ const App: React.FC = () => {
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [currentView, setCurrentView] = useState<ViewType>('home');
-  const [layout, setLayout] = useState<'list' | 'grid'>('list');
+  const [layout, setLayout] = useState<'list' | 'grid'>('grid');
   const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null);
   const [selectedDeveloperUsername, setSelectedDeveloperUsername] = useState<string | null>(null);
   const [favorites, setFavorites] = useState<string[]>([]);
@@ -43,7 +43,7 @@ const App: React.FC = () => {
   const [formTeam, setFormTeam] = useState<TeamMember[]>([]);
   const [formSupporters, setFormSupporters] = useState<TeamMember[]>([]);
   const [formTimeline, setFormTimeline] = useState<TimelineEvent[]>([]);
-  const [formLastEdited, setFormLastEdited] = useState(new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }));
+  const [formLastEdited, setFormLastEdited] = useState(new Date().toISOString().split('T')[0]);
   const [copySuccess, setCopySuccess] = useState(false);
   const [syncingIndex, setSyncingIndex] = useState<{ type: 'team' | 'supporter', index: number } | null>(null);
 
@@ -216,7 +216,7 @@ const App: React.FC = () => {
     setFormTeam(project.team ? [...project.team] : []);
     setFormSupporters(project.supporters ? [...project.supporters] : []);
     setFormTimeline(project.timeline ? [...project.timeline] : []);
-    setFormLastEdited(project.lastEdited || new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }));
+    setFormLastEdited(project.lastEdited || new Date().toISOString().split('T')[0]);
     setCurrentView('add-project');
     window.scrollTo(0, 0);
   };
@@ -592,7 +592,7 @@ const App: React.FC = () => {
               </div>
               <div className="col-span-2 space-y-2 mt-4">
                 <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Last Edited Date</label>
-                <input value={formLastEdited} onChange={e => setFormLastEdited(e.target.value)} type="text" placeholder="e.g. Oct 23, 2023" className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border-none rounded-xl focus:ring-2 focus:ring-hive/50 dark:text-white outline-none" />
+                <input value={formLastEdited} onChange={e => setFormLastEdited(e.target.value)} type="date" className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border-none rounded-xl focus:ring-2 focus:ring-hive/50 dark:text-white outline-none" />
               </div>
             </div>
           </section>
@@ -614,8 +614,8 @@ const App: React.FC = () => {
                       <img src={member.avatar || `https://images.hive.blog/u/${member.name.toLowerCase() || 'hive'}/avatar`} alt="Profile" className="w-full h-full object-cover" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <div className="flex flex-col sm:flex-row gap-4">
-                        <div className="flex-1 space-y-1.5">
+                      <div className="flex flex-col gap-4">
+                        <div className="space-y-1.5">
                           <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest pl-1">Hive Username</label>
                           <div className="flex gap-2">
                             <input 
@@ -635,7 +635,7 @@ const App: React.FC = () => {
                             </button>
                           </div>
                         </div>
-                        <div className="flex-1 space-y-1.5">
+                        <div className="space-y-1.5">
                           <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest pl-1">Contribution / Role</label>
                           <input value={member.role} onChange={e => updateMember('team', idx, 'role', e.target.value)} type="text" placeholder="e.g. Lead Dev" className="w-full px-3 py-2 bg-white dark:bg-slate-900 border-none rounded-lg text-xs outline-none" />
                         </div>
@@ -665,8 +665,8 @@ const App: React.FC = () => {
                       <img src={member.avatar || `https://images.hive.blog/u/${member.name.toLowerCase() || 'hive'}/avatar`} alt="Profile" className="w-full h-full object-cover" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <div className="flex flex-col sm:flex-row gap-4">
-                        <div className="flex-1 space-y-1.5">
+                      <div className="flex flex-col gap-4">
+                        <div className="space-y-1.5">
                           <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest pl-1">Hive Username</label>
                           <div className="flex gap-2">
                             <input 
@@ -686,7 +686,7 @@ const App: React.FC = () => {
                             </button>
                           </div>
                         </div>
-                        <div className="flex-1 space-y-1.5">
+                        <div className="space-y-1.5">
                           <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest pl-1">Contribution</label>
                           <input value={member.role} onChange={e => updateMember('supporter', idx, 'role', e.target.value)} type="text" placeholder="e.g. Translation" className="w-full px-3 py-2 bg-white dark:bg-slate-900 border-none rounded-lg text-xs outline-none" />
                         </div>
