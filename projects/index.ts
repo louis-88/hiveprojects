@@ -5,6 +5,7 @@ import { apeminingclub } from './apeminingclub';
 import { arcadecolony } from './arcadecolony';
 import { astral_wars } from './astral-wars';
 import { beeswap } from './beeswap';
+import { beatbrawls } from "./beatbrawls";
 import { blocktunes } from './blocktunes';
 import { cryptoshots } from './cryptoshots';
 import { dbuzz } from './dbuzz';
@@ -90,6 +91,7 @@ export const projects: Project[] = [
   arcadecolony,
   astral_wars,
   beeswap,
+  beatbrawls,
   blocktunes,
   cryptoshots,
   dbuzz,
